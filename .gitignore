@@ -1,0 +1,70 @@
+# Next.js and React
+/frontend/.next/
+/frontend/out/
+/frontend/build/
+/frontend/node_modules/
+/frontend/.pnp
+/frontend/.pnp.js
+/frontend/coverage/
+/frontend/.env.local
+/frontend/.env.development.local
+/frontend/.env.test.local
+/frontend/.env.production.local
+/frontend/npm-debug.log*
+/frontend/yarn-debug.log*
+/frontend/yarn-error.log*
+/frontend/pnpm-debug.log*
+
+# Python backend
+/satori_backend/__pycache__/
+/satori_backend/*/__pycache__/
+/satori_backend/*/*/__pycache__/
+/satori_backend/venv/
+/satori_backend/.env
+/satori_backend/*.py[cod]
+/satori_backend/*$py.class
+/satori_backend/.pytest_cache/
+/satori_backend/.coverage
+/satori_backend/htmlcov/
+/satori_backend/dist/
+/satori_backend/build/
+/satori_backend/*.egg-info/
+
+# IDE and editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Project specific
+*.glb
+*.gltf
+*.obj
+*.mtl
+*.fbx
+*.blend
+*.blend1
+*.zip
+*.rar
+*.7z
+*.tar.gz
+
+# Logs
+logs/
+*.log
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Temporary files
+tmp/
+temp/
