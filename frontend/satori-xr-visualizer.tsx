@@ -6,6 +6,7 @@ import { ControlPanel } from "./components/control-panel"
 import { ViewerPanel } from "./components/viewer-panel"
 import { InfoPanel } from "./components/info-panel"
 import { SettingsPanel } from "./components/settings-panel"
+import { generateHotspots, extractPartNamesFromGLB, type Hotspot as ApiHotspot } from "./services/api"
 
 interface Hotspot {
   id: string
@@ -57,6 +58,9 @@ export default function SatoriXRVisualizer() {
   const [modelUrl, setModelUrl] = useState<string | undefined>(undefined)
   const [focusHotspotId, setFocusHotspotId] = useState<string | undefined>(undefined)
   const [keySellingPoints, setKeySellingPoints] = useState<string[]>([])
+  const [modelFile, setModelFile] = useState<File | null>(null)
+  const [pdfFile, setPdfFile] = useState<File | null>(null)
+  const [extractedPartNames, setExtractedPartNames] = useState<string[]>([])
 
   const handleGetStarted = () => {
     setCurrentView("app")
@@ -79,21 +83,50 @@ export default function SatoriXRVisualizer() {
     setCurrentView("app")
   }
 
-  const handleModelUpload = (file: File) => {
+  const handleModelUpload = async (file: File) => {
     // Create object URL for the uploaded GLB file
     const url = URL.createObjectURL(file)
     setModelUrl(url)
+    setModelFile(file)
+    
+    // Extract part names from the GLB file
+    try {
+      const partNames = await extractPartNamesFromGLB(file)
+      setExtractedPartNames(partNames)
+      console.log('Extracted part names:', partNames)
+    } catch (error) {
+      console.error('Failed to extract part names:', error)
+    }
+  }
+  
+  const handlePdfUpload = (file: File) => {
+    setPdfFile(file)
   }
 
-  const handleGenerateHotspots = () => {
+  const handleGenerateHotspots = async (modelFile: File, pdfFile: File) => {
     setIsGenerating(true)
-
-    // Simulate AI processing time
-    setTimeout(() => {
+    
+    try {
+      // Call the API to generate hotspots
+      const response = await generateHotspots(modelFile, pdfFile, extractedPartNames)
+      
+      // Convert API hotspots to the format expected by the UI
+      const formattedHotspots: Hotspot[] = response.hotspots.map((hotspot: ApiHotspot) => ({
+        id: hotspot.id,
+        title: hotspot.feature_title,
+        summary: hotspot.feature_description
+      }))
+      
+      setHotspots(formattedHotspots)
+      setKeySellingPoints(response.key_selling_points)
+    } catch (error) {
+      console.error('Error generating hotspots:', error)
+      // Fallback to mock data in case of error
       setHotspots(mockHotspots)
       setKeySellingPoints(mockKeySellingPoints)
+    } finally {
       setIsGenerating(false)
-    }, 4000)
+    }
   }
 
   const handleHotspotClick = (id: string) => {
@@ -123,6 +156,7 @@ export default function SatoriXRVisualizer() {
         onBackToLanding={handleBackToLanding}
         onOpenSettings={handleOpenSettings}
         onModelUpload={handleModelUpload}
+        onPdfUpload={handlePdfUpload}
         isGenerating={isGenerating}
         keySellingPoints={keySellingPoints}
       />

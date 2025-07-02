@@ -34,20 +34,20 @@ function HotspotMarker({
 }: {
   position: [number, number, number]
   hotspotId: string
-  onClick: (id: string, position: THREE.Vector3) => void
-  onHover: (id: string, position: THREE.Vector3) => void
+  onClick: (id: string, position: THREE.Vector3, hotspot: any) => void
+  onHover: (hotspot: any, position: THREE.Vector3) => void
   onHoverEnd: () => void
   hotspot: any
 }) {
   const meshRef = useRef<THREE.Mesh>(null)
-  const [hovered, setHovered] = useState(false)
+  const [isHovered, setIsHovered] = useState(false)
 
   useFrame((state) => {
     if (meshRef.current && state?.clock) {
       try {
         // Pulsating animation
         const pulse = Math.sin(state.clock.elapsedTime * 3) * 0.3 + 1
-        meshRef.current.scale.setScalar(pulse * (hovered ? 1.5 : 1))
+        meshRef.current.scale.setScalar(pulse * (isHovered ? 1.5 : 1))
       } catch (error) {
         // Handle frame errors silently
       }
@@ -55,16 +55,16 @@ function HotspotMarker({
   })
 
   const handleClick = () => {
-    onClick(hotspotId, new THREE.Vector3(...position))
+    onClick(hotspotId, new THREE.Vector3(...position), hotspot)
   }
 
   const handlePointerOver = () => {
-    setHovered(true)
-    onHover(hotspotId, new THREE.Vector3(...position))
+    setIsHovered(true)
+    onHover(hotspot, new THREE.Vector3(...position))
   }
 
   const handlePointerOut = () => {
-    setHovered(false)
+    setIsHovered(false)
     onHoverEnd()
   }
 
@@ -75,7 +75,7 @@ function HotspotMarker({
           <meshStandardMaterial
             color="#3b82f6"
             emissive="#3b82f6"
-            emissiveIntensity={hovered ? 1.0 : 0.5}
+            emissiveIntensity={isHovered ? 1.0 : 0.5}
             transparent
             opacity={0.9}
           />
@@ -85,7 +85,7 @@ function HotspotMarker({
           <meshStandardMaterial
             color="#3b82f6"
             transparent
-            opacity={hovered ? 0.3 : 0.1}
+            opacity={isHovered ? 0.3 : 0.1}
             emissive="#3b82f6"
             emissiveIntensity={0.2}
           />
@@ -93,10 +93,10 @@ function HotspotMarker({
       </mesh>
 
       {/* Simple tooltip that follows the hotspot - just title */}
-      {hovered && (
+      {isHovered && (
         <Html position={[0, 0.3, 0]} center distanceFactor={10} occlude={false} style={{ pointerEvents: "none" }}>
           <div className="bg-gray-900/95 backdrop-blur-sm border border-gray-700 rounded-lg px-3 py-2 shadow-xl whitespace-nowrap">
-            <h4 className="text-white font-medium text-sm font-['Inter']">{hotspot.title}</h4>
+            <h4 className="text-white font-medium text-sm font-['Inter']">{hotspot.feature_title}</h4>
           </div>
         </Html>
       )}
@@ -137,17 +137,27 @@ function UploadedModel({
   onHotspotHover,
   onHotspotHoverEnd,
   autoRotate,
+  ambientIntensity,
+  directionalIntensity,
+  pointIntensity,
 }: {
   modelUrl: string
   hotspots: any[]
-  onHotspotClick: (id: string, position: THREE.Vector3) => void
-  onHotspotHover: (id: string, position: THREE.Vector3) => void
+  onHotspotClick: (id: string, position: THREE.Vector3, hotspot: any) => void
+  onHotspotHover: (hotspot: any, position: THREE.Vector3) => void
   onHotspotHoverEnd: () => void
   autoRotate: boolean
+  ambientIntensity: number
+  directionalIntensity: number
+  pointIntensity: number
 }) {
   const { scene } = useGLTF(modelUrl)
   const groupRef = useRef<THREE.Group>(null)
   const [modelBounds, setModelBounds] = useState<THREE.Box3 | null>(null)
+  const { camera } = useThree()
+  const [hoveredHotspot, setHoveredHotspot] = useState<any>(null)
+  const [clickedHotspot, setClickedHotspot] = useState<any>(null)
+  const [hotspotScreenPosition, setHotspotScreenPosition] = useState<{ x: number; y: number } | null>(null)
 
   useEffect(() => {
     if (scene) {
@@ -175,7 +185,37 @@ function UploadedModel({
         // Handle frame errors silently
       }
     }
+
+    if (hoveredHotspot && hoveredHotspot.position && hotspotScreenPosition) {
+      const vector = new THREE.Vector3(...(hoveredHotspot.position as [number, number, number]))
+      vector.project(camera)
+      const x = (vector.x * 0.5 + 0.5) * window.innerWidth
+      const y = (-vector.y * 0.5 + 0.5) * window.innerHeight
+      setHotspotScreenPosition({ x, y })
+    }
   })
+
+  // Find position of a mesh by part name
+  const findMeshPosition = (partName: string | undefined): THREE.Vector3 | null => {
+    if (!partName) return null
+    if (!scene) return null
+
+    let targetMesh: THREE.Mesh | null = null
+
+    scene.traverse((child) => {
+      if (child instanceof THREE.Mesh && child.name && child.name.toLowerCase().includes(partName.toLowerCase())) {
+        targetMesh = child
+      }
+    })
+
+    if (!targetMesh) return null
+
+    // Calculate world position of the mesh's bounding box center
+    const box = new THREE.Box3().setFromObject(targetMesh)
+    const center = box.getCenter(new THREE.Vector3())
+
+    return center
+  }
 
   // Auto-generate hotspot positions based on model bounds
   const generateHotspotPositions = () => {
@@ -195,27 +235,81 @@ function UploadedModel({
       [center.x, center.y - scaledSize.y * 0.4, center.z], // Bottom
     ]
   }
+  
+  // Get position for a hotspot, either from its defined position or by generating one
+  const getHotspotPosition = (hotspot: any, index: number): [number, number, number] => {
+    // If the hotspot has a predefined position, use it
+    if (hotspot.position) {
+      return hotspot.position
+    }
+    
+    // Otherwise, try to find the position by part name if the title might match a part
+    const position = findMeshPosition(hotspot.matched_part_name)
+    if (position) {
+      return [position.x, position.y, position.z]
+    }
+    
+    // Fall back to generated positions
+    const generatedPositions = generateHotspotPositions()
+    return generatedPositions[index % generatedPositions.length] as [number, number, number]
+  }
 
-  const hotspotPositions = generateHotspotPositions()
+  const handleHotspotClick = (id: string, position: THREE.Vector3, hotspot: any) => {
+    setClickedHotspot(hotspot)
+    const vector = position.clone().project(camera)
+    const x = (vector.x * 0.5 + 0.5) * window.innerWidth
+    const y = (-vector.y * 0.5 + 0.5) * window.innerHeight
+    setHotspotScreenPosition({ x, y })
+    onHotspotClick(id, position, hotspot)
+  }
+
+  const handleHotspotHover = (hotspot: any, position: THREE.Vector3) => {
+    setHoveredHotspot(hotspot)
+    const vector = position.clone().project(camera)
+    const x = (vector.x * 0.5 + 0.5) * window.innerWidth
+    const y = (-vector.y * 0.5 + 0.5) * window.innerHeight
+    setHotspotScreenPosition({ x, y })
+    onHotspotHover(hotspot, position)
+  }
+
+  const handleHotspotHoverEnd = () => {
+    setHoveredHotspot(null)
+    setHotspotScreenPosition(null)
+    onHotspotHoverEnd()
+  }
+
+  const handleOverlayClose = () => {
+    setClickedHotspot(null)
+    setHotspotScreenPosition(null)
+  }
 
   return (
     <group ref={groupRef}>
       <primitive object={scene} />
       {/* Hotspot markers */}
       {hotspots.map((hotspot, i) => {
-        const position = hotspotPositions[i] || [0, 0, 0]
+        const position = getHotspotPosition(hotspot, i)
         return (
           <HotspotMarker
             key={hotspot.id}
-            position={position as [number, number, number]}
+            position={position}
             hotspotId={hotspot.id}
-            onClick={onHotspotClick}
-            onHover={onHotspotHover}
-            onHoverEnd={onHotspotHoverEnd}
+            onClick={handleHotspotClick}
+            onHover={handleHotspotHover}
+            onHoverEnd={handleHotspotHoverEnd}
             hotspot={hotspot}
           />
         )
       })}
+      {clickedHotspot && hotspotScreenPosition && (
+        <Html position={[0, 0, 0]} fullscreen>
+          <HotspotOverlay
+            hotspot={clickedHotspot}
+            position={hotspotScreenPosition}
+            onClose={handleOverlayClose}
+          />
+        </Html>
+      )}
     </group>
   )
 }
@@ -229,12 +323,16 @@ function DroneModel({
   autoRotate,
 }: {
   hotspots: any[]
-  onHotspotClick: (id: string, position: THREE.Vector3) => void
-  onHotspotHover: (id: string, position: THREE.Vector3) => void
+  onHotspotClick: (id: string, position: THREE.Vector3, hotspot: any) => void
+  onHotspotHover: (hotspot: any, position: THREE.Vector3) => void
   onHotspotHoverEnd: () => void
   autoRotate: boolean
 }) {
   const groupRef = useRef<THREE.Group>(null)
+  const { camera } = useThree()
+  const [hoveredHotspot, setHoveredHotspot] = useState<any>(null)
+  const [clickedHotspot, setClickedHotspot] = useState<any>(null)
+  const [hotspotScreenPosition, setHotspotScreenPosition] = useState<{ x: number; y: number } | null>(null)
 
   useFrame(() => {
     if (groupRef.current && autoRotate) {
@@ -244,7 +342,44 @@ function DroneModel({
         // Handle frame errors silently
       }
     }
+
+    if (hoveredHotspot && hoveredHotspot.position && hotspotScreenPosition) {
+      const vector = new THREE.Vector3(...(hoveredHotspot.position as [number, number, number]))
+      vector.project(camera)
+      const x = (vector.x * 0.5 + 0.5) * window.innerWidth
+      const y = (-vector.y * 0.5 + 0.5) * window.innerHeight
+      setHotspotScreenPosition({ x, y })
+    }
   })
+
+  const handleHotspotClick = (id: string, position: THREE.Vector3, hotspot: any) => {
+    setClickedHotspot(hotspot)
+    const vector = position.clone().project(camera)
+    const x = (vector.x * 0.5 + 0.5) * window.innerWidth
+    const y = (-vector.y * 0.5 + 0.5) * window.innerHeight
+    setHotspotScreenPosition({ x, y })
+    onHotspotClick(id, position, hotspot)
+  }
+
+  const handleHotspotHover = (hotspot: any, position: THREE.Vector3) => {
+    setHoveredHotspot(hotspot)
+    const vector = position.clone().project(camera)
+    const x = (vector.x * 0.5 + 0.5) * window.innerWidth
+    const y = (-vector.y * 0.5 + 0.5) * window.innerHeight
+    setHotspotScreenPosition({ x, y })
+    onHotspotHover(hotspot, position)
+  }
+
+  const handleHotspotHoverEnd = () => {
+    setHoveredHotspot(null)
+    setHotspotScreenPosition(null)
+    onHotspotHoverEnd()
+  }
+
+  const handleOverlayClose = () => {
+    setClickedHotspot(null)
+    setHotspotScreenPosition(null)
+  }
 
   return (
     <group ref={groupRef}>
@@ -294,13 +429,22 @@ function DroneModel({
             key={hotspot.id}
             position={position as [number, number, number]}
             hotspotId={hotspot.id}
-            onClick={onHotspotClick}
-            onHover={onHotspotHover}
-            onHoverEnd={onHotspotHoverEnd}
+            onClick={handleHotspotClick}
+            onHover={handleHotspotHover}
+            onHoverEnd={handleHotspotHoverEnd}
             hotspot={hotspot}
           />
         )
       })}
+      {clickedHotspot && hotspotScreenPosition && (
+        <Html position={[0, 0, 0]} fullscreen>
+          <HotspotOverlay
+            hotspot={clickedHotspot}
+            position={hotspotScreenPosition}
+            onClose={handleOverlayClose}
+          />
+        </Html>
+      )}
     </group>
   )
 }
@@ -422,8 +566,7 @@ function Scene({
           onHotspotClick={onHotspotClick}
           onHotspotHover={onHotspotHover}
           onHotspotHoverEnd={onHotspotHoverEnd}
-          autoRotate={autoRotate}
-        />
+          autoRotate={autoRotate} ambientIntensity={0} directionalIntensity={0} pointIntensity={0}        />
       ) : (
         <DroneModel
           hotspots={hotspots}

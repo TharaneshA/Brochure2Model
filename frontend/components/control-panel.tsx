@@ -8,10 +8,11 @@ import { FileText, CuboidIcon as Cube, Loader2, ArrowLeft, Settings } from "luci
 import { ProgressBadges } from "./progress-badges"
 
 interface ControlPanelProps {
-  onGenerateHotspots: () => void
+  onGenerateHotspots: (modelFile: File, pdfFile: File) => void
   onBackToLanding: () => void
   onOpenSettings: () => void
   onModelUpload: (file: File) => void
+  onPdfUpload?: (file: File) => void
   isGenerating: boolean
   keySellingPoints: string[]
 }
@@ -21,13 +22,14 @@ export function ControlPanel({
   onBackToLanding,
   onOpenSettings,
   onModelUpload,
+  onPdfUpload,
   isGenerating,
   keySellingPoints,
 }: ControlPanelProps) {
   const [modelFile, setModelFile] = useState<File | null>(null)
   const [pdfFile, setPdfFile] = useState<File | null>(null)
 
-  const canGenerate = modelFile && !isGenerating
+  const canGenerate = modelFile && pdfFile && !isGenerating
 
   const handleModelUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -41,6 +43,9 @@ export function ControlPanel({
     const file = event.target.files?.[0]
     if (file && file.type === "application/pdf") {
       setPdfFile(file)
+      if (onPdfUpload) {
+        onPdfUpload(file)
+      }
     }
   }
 
@@ -125,7 +130,11 @@ export function ControlPanel({
         {/* Generate Button */}
         <div>
           <Button
-            onClick={onGenerateHotspots}
+            onClick={() => {
+              if (modelFile && pdfFile) {
+                onGenerateHotspots(modelFile, pdfFile)
+              }
+            }}
             disabled={!canGenerate}
             className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:text-gray-500 font-['Inter']"
           >
@@ -145,7 +154,7 @@ export function ControlPanel({
         <div>
           <h3 className="text-sm font-semibold text-white mb-3 font-['Inter']">Key Selling Points</h3>
           <div className="space-y-2">
-            {keySellingPoints.length === 0 ? (
+            {(keySellingPoints || []).length === 0 ? (
               <div className="text-center py-8">
                 <div className="text-gray-500">
                   <p className="text-sm font-['Inter']">Generate hotspots to see key selling points</p>
