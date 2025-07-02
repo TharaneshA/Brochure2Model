@@ -8,11 +8,7 @@ import { InfoPanel } from "./components/info-panel"
 import { SettingsPanel } from "./components/settings-panel"
 import { generateHotspots, extractPartNamesFromGLB, type Hotspot as ApiHotspot } from "./services/api"
 
-interface Hotspot {
-  id: string
-  title: string
-  summary: string
-}
+interface Hotspot extends ApiHotspot {}
 
 const mockHotspots: Hotspot[] = [
   {
@@ -114,7 +110,9 @@ export default function SatoriXRVisualizer() {
       const formattedHotspots: Hotspot[] = response.hotspots.map((hotspot: ApiHotspot) => ({
         id: hotspot.id,
         title: hotspot.feature_title,
-        summary: hotspot.feature_description
+        summary: hotspot.feature_description,
+        matched_part_name: hotspot.matched_part_name, // Add this line
+        position: hotspot.position, // Add this line
       }))
       
       setHotspots(formattedHotspots)

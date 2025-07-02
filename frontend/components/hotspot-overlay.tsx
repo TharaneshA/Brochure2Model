@@ -18,6 +18,10 @@ interface HotspotOverlayProps {
 }
 
 export function HotspotOverlay({ hotspot, position, onClose }: HotspotOverlayProps) {
+  if (!hotspot.feature_title && !hotspot.feature_description) {
+    return null;
+  }
+
   return (
     <div
       className="absolute z-50 w-80 pointer-events-auto"
@@ -29,31 +33,35 @@ export function HotspotOverlay({ hotspot, position, onClose }: HotspotOverlayPro
     >
       <Card className="bg-gray-900/95 backdrop-blur-sm border-gray-700 shadow-2xl">
         <CardContent className="p-4">
-          <div className="flex items-start justify-between mb-3">
-            <h3 className="text-lg font-bold text-white font-['Inter']">{hotspot.feature_title}</h3>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              className="text-gray-400 hover:text-white hover:bg-gray-800 p-1 h-auto"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-          <p className="text-gray-300 text-sm leading-relaxed font-['Inter'] mb-4">{hotspot.feature_description}</p>
-          <div className="flex gap-2">
-            <Button size="sm" className="bg-blue-600 hover:bg-blue-700 font-['Inter']">
-              <ExternalLink className="h-3 w-3 mr-1" />
-              Learn More
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="border-gray-600 text-gray-300 hover:bg-gray-800 font-['Inter'] bg-transparent"
-            >
-              Share
-            </Button>
-          </div>
+          {(hotspot.feature_title || hotspot.feature_description) ? (
+            <>
+              <div className="flex items-start justify-between mb-3">
+                <h3 className="text-lg font-bold text-white font-['Inter']">{hotspot.feature_title}</h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onClose}
+                  className="text-gray-400 hover:text-white hover:bg-gray-800 p-1 h-auto"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+              <p className="text-gray-300 text-sm leading-relaxed font-['Inter'] mb-4">{hotspot.feature_description}</p>
+              <div className="flex gap-2">
+                <Button size="sm" className="bg-blue-600 hover:bg-blue-700 font-['Inter']">
+                  <ExternalLink className="h-3 w-3 mr-1" />
+                  Learn More
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-gray-600 text-gray-300 hover:bg-gray-800 font-['Inter'] bg-transparent"
+                >
+                  Share
+                </Button>
+              </div>
+            </>
+          ) : null}
         </CardContent>
       </Card>
       {/* Arrow pointing to hotspot */}

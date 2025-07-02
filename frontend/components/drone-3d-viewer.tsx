@@ -2,7 +2,7 @@
 
 import { useRef, Suspense, useState, useEffect } from "react"
 import { Canvas, useFrame, useThree } from "@react-three/fiber"
-import { OrbitControls, Box, Sphere, Cylinder, useGLTF, Html } from "@react-three/drei"
+import { OrbitControls, Box, Sphere, Cylinder, Html } from "@react-three/drei"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import {
@@ -22,6 +22,7 @@ import {
 } from "lucide-react"
 import { HotspotOverlay } from "./hotspot-overlay"
 import * as THREE from "three"
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 
 // Pulsating hotspot marker component
 function HotspotMarker({
@@ -55,12 +56,26 @@ function HotspotMarker({
   })
 
   const handleClick = () => {
-    onClick(hotspotId, new THREE.Vector3(...position), hotspot)
+    if (position) {
+      onClick(hotspotId, new THREE.Vector3(...position), hotspot)
+    } else {
+      console.error(
+        "HotspotMarker: handleClick received undefined or null position",
+        position
+      )
+    }
   }
 
   const handlePointerOver = () => {
     setIsHovered(true)
-    onHover(hotspot, new THREE.Vector3(...position))
+    if (position) {
+      onHover(hotspot, new THREE.Vector3(...position))
+    } else {
+      console.error(
+        "HotspotMarker: handlePointerOver received undefined or null position",
+        position
+      )
+    }
   }
 
   const handlePointerOut = () => {
@@ -96,7 +111,7 @@ function HotspotMarker({
       {isHovered && (
         <Html position={[0, 0.3, 0]} center distanceFactor={10} occlude={false} style={{ pointerEvents: "none" }}>
           <div className="bg-gray-900/95 backdrop-blur-sm border border-gray-700 rounded-lg px-3 py-2 shadow-xl whitespace-nowrap">
-            <h4 className="text-white font-medium text-sm font-['Inter']">{hotspot.feature_title}</h4>
+            <h4 className="text-white font-medium text-sm font-['Inter']">{hotspot.title}</h4>
           </div>
         </Html>
       )}
@@ -151,31 +166,157 @@ function UploadedModel({
   directionalIntensity: number
   pointIntensity: number
 }) {
-  const { scene } = useGLTF(modelUrl)
+  const [scene, setScene] = useState<THREE.Group | null>(null)
   const groupRef = useRef<THREE.Group>(null)
   const [modelBounds, setModelBounds] = useState<THREE.Box3 | null>(null)
   const { camera } = useThree()
   const [hoveredHotspot, setHoveredHotspot] = useState<any>(null)
   const [clickedHotspot, setClickedHotspot] = useState<any>(null)
   const [hotspotScreenPosition, setHotspotScreenPosition] = useState<{ x: number; y: number } | null>(null)
+  const [hotspotPositions, setHotspotPositions] = useState<{
+    id: string
+    position: THREE.Vector3
+    hotspot: any
+  }[]>([])
 
-  useEffect(() => {
-    if (scene) {
-      // Calculate model bounds
-      const box = new THREE.Box3().setFromObject(scene)
-      setModelBounds(box)
-
-      // Center the model
-      const center = box.getCenter(new THREE.Vector3())
-      scene.position.sub(center)
-
-      // Scale the model to fit in viewport
-      const size = box.getSize(new THREE.Vector3())
-      const maxDim = Math.max(size.x, size.y, size.z)
-      const scale = 3 / maxDim // Scale to fit in 3 unit cube
-      scene.scale.setScalar(scale)
+  // Function to find mesh position by name
+    const findMeshPosition = (partName: string): THREE.Vector3 | null => {
+    if (!partName || !scene) {
+      console.warn("findMeshPosition: partName or scene is undefined.", { partName, scene })
+      return null
     }
-  }, [scene])
+
+    let foundMesh: THREE.Object3D | undefined;
+
+    // Try exact match first (case-sensitive)
+    foundMesh = scene.getObjectByName(partName);
+
+    // If not found, try case-insensitive exact match
+    if (!foundMesh) {
+      scene.traverse((object) => {
+        if (object.name.toLowerCase() === partName.toLowerCase()) {
+          foundMesh = object;
+          return false; // Stop traversal
+        }
+      });
+    }
+
+    // If still not found, try partial matching with segments of the partName
+    if (!foundMesh) {
+      const partNameSegments = partName.split(/[_:\s-]/).filter(s => s.length > 2); // Split by common delimiters and filter short segments
+      for (const segment of partNameSegments) {
+        scene.traverse((object) => {
+          if (object.name.toLowerCase().includes(segment.toLowerCase())) {
+            foundMesh = object;
+            return false; // Stop traversal
+          }
+        });
+        if (foundMesh) break; // If a segment match is found, stop searching
+      }
+    }
+
+    // If still not found, try if the object's name includes the partName
+    if (!foundMesh) {
+      scene.traverse((object) => {
+        if (object.name.toLowerCase().includes(partName.toLowerCase())) {
+          foundMesh = object;
+          return false; // Stop traversal
+        }
+      });
+    }
+
+    // If still not found, try if the partName includes the object's name
+    if (!foundMesh) {
+      scene.traverse((object) => {
+        if (partName.toLowerCase().includes(object.name.toLowerCase())) {
+          foundMesh = object;
+          return false; // Stop traversal
+        }
+      });
+    }
+
+    if (foundMesh) {
+      // Ensure world matrix is up to date for correct position calculation
+      foundMesh.updateWorldMatrix(true, false)
+      const worldPosition = new THREE.Vector3()
+      foundMesh.getWorldPosition(worldPosition)
+      return worldPosition
+    }
+
+    console.warn(`Mesh with part name '${partName}' not found in the scene.`) // Log if mesh is not found
+    return null
+  }
+
+  // Load GLTF model
+  useEffect(() => {
+    if (!modelUrl) return
+
+    const loader = new GLTFLoader()
+    loader.load(
+      modelUrl,
+      (gltf) => {
+        const loadedScene = gltf.scene
+
+        // Calculate model bounds
+        const box = new THREE.Box3().setFromObject(loadedScene)
+        setModelBounds(box)
+
+        // Center the model
+        const center = box.getCenter(new THREE.Vector3())
+        loadedScene.position.sub(center)
+
+        // Scale the model to fit in viewport
+        const size = box.getSize(new THREE.Vector3())
+        const maxDim = Math.max(size.x, size.y, size.z)
+        const scale = 3 / maxDim // Scale to fit in 3 unit cube
+        loadedScene.scale.setScalar(scale)
+
+        setScene(loadedScene)
+
+        },
+        undefined,
+      (error) => {
+        console.error("An error occurred loading the GLTF model:", error)
+      }
+    )
+  }, [modelUrl])
+
+  // Calculate hotspot positions when scene or hotspots change
+  useEffect(() => {
+    if (scene && modelBounds && hotspots.length > 0) {
+      const newHotspotPositions = hotspots
+        .map((hotspot) => {
+          const position = findMeshPosition(hotspot.matched_part_name)
+          if (position) {
+            return { id: hotspot.id, position, hotspot }
+          } else {
+            console.warn(
+              `Could not find mesh for hotspot '${hotspot.feature_title}' with part name '${hotspot.matched_part_name}'. Falling back to generated position.`
+            )
+            // Fallback to a generated position if mesh not found
+            const size = modelBounds.getSize(new THREE.Vector3())
+            const center = new THREE.Vector3(0, 0, 0) // Model is centered at origin
+            const scale = 3 / Math.max(size.x, size.y, size.z)
+            const scaledSize = size.clone().multiplyScalar(scale)
+
+            const fallbackPositions: [number, number, number][] = [
+              [center.x, center.y + scaledSize.y * 0.4, center.z + scaledSize.z * 0.3], // Top front
+              [center.x - scaledSize.x * 0.4, center.y, center.z], // Left side
+              [center.x + scaledSize.x * 0.4, center.y, center.z], // Right side
+              [center.x, center.y - scaledSize.y * 0.4, center.z], // Bottom
+            ]
+            const fallbackPosition = fallbackPositions[hotspots.indexOf(hotspot) % fallbackPositions.length]
+            return { id: hotspot.id, position: new THREE.Vector3(...fallbackPosition), hotspot }
+          }
+        })
+        .filter(Boolean) as {
+          id: string
+          position: THREE.Vector3
+          hotspot: any
+        }[]
+      setHotspotPositions(newHotspotPositions)
+    }
+  }, [scene, modelBounds, hotspots])
 
   useFrame(() => {
     if (groupRef.current && autoRotate) {
@@ -195,76 +336,33 @@ function UploadedModel({
     }
   })
 
-  // Find position of a mesh by part name
-  const findMeshPosition = (partName: string | undefined): THREE.Vector3 | null => {
-    if (!partName) return null
-    if (!scene) return null
-
-    let targetMesh: THREE.Mesh | null = null
-
-    scene.traverse((child) => {
-      if (child instanceof THREE.Mesh && child.name && child.name.toLowerCase().includes(partName.toLowerCase())) {
-        targetMesh = child
-      }
-    })
-
-    if (!targetMesh) return null
-
-    // Calculate world position of the mesh's bounding box center
-    const box = new THREE.Box3().setFromObject(targetMesh)
-    const center = box.getCenter(new THREE.Vector3())
-
-    return center
-  }
-
-  // Auto-generate hotspot positions based on model bounds
-  const generateHotspotPositions = () => {
-    if (!modelBounds) return []
-
-    const size = modelBounds.getSize(new THREE.Vector3())
-    const center = new THREE.Vector3(0, 0, 0) // Model is centered at origin
-
-    // Scale positions based on the scaled model
-    const scale = 3 / Math.max(size.x, size.y, size.z)
-    const scaledSize = size.clone().multiplyScalar(scale)
-
-    return [
-      [center.x, center.y + scaledSize.y * 0.4, center.z + scaledSize.z * 0.3], // Top front
-      [center.x - scaledSize.x * 0.4, center.y, center.z], // Left side
-      [center.x + scaledSize.x * 0.4, center.y, center.z], // Right side
-      [center.x, center.y - scaledSize.y * 0.4, center.z], // Bottom
-    ]
-  }
-  
-  // Get position for a hotspot, either from its defined position or by generating one
-  const getHotspotPosition = (hotspot: any, index: number): [number, number, number] => {
-    // If the hotspot has a predefined position, use it
-    if (hotspot.position) {
-      return hotspot.position
-    }
-    
-    // Otherwise, try to find the position by part name if the title might match a part
-    const position = findMeshPosition(hotspot.matched_part_name)
-    if (position) {
-      return [position.x, position.y, position.z]
-    }
-    
-    // Fall back to generated positions
-    const generatedPositions = generateHotspotPositions()
-    return generatedPositions[index % generatedPositions.length] as [number, number, number]
-  }
-
   const handleHotspotClick = (id: string, position: THREE.Vector3, hotspot: any) => {
-    setClickedHotspot(hotspot)
-    const vector = position.clone().project(camera)
-    const x = (vector.x * 0.5 + 0.5) * window.innerWidth
-    const y = (-vector.y * 0.5 + 0.5) * window.innerHeight
-    setHotspotScreenPosition({ x, y })
+    console.log("Clicked Hotspot:", hotspot);
+    
+    // Ensure hotspot has required properties for HotspotOverlay
+    const formattedHotspot = {
+      ...hotspot,
+      feature_title: hotspot.title || "",
+      feature_description: hotspot.summary || ""
+    };
+    
+    // Clear any existing clicked hotspot before setting new one
+    setClickedHotspot(null);
+
+    // Only set clickedHotspot if there's content to display
+    if (formattedHotspot.feature_title || formattedHotspot.feature_description) {
+      setClickedHotspot(formattedHotspot)
+      const vector = position.clone().project(camera)
+      const x = (vector.x * 0.5 + 0.5) * window.innerWidth
+      const y = (-vector.y * 0.5 + 0.5) * window.innerHeight
+      setHotspotScreenPosition({ x, y })
+    }
     onHotspotClick(id, position, hotspot)
   }
 
   const handleHotspotHover = (hotspot: any, position: THREE.Vector3) => {
     setHoveredHotspot(hotspot)
+    setClickedHotspot(null) // Clear clicked hotspot on hover
     const vector = position.clone().project(camera)
     const x = (vector.x * 0.5 + 0.5) * window.innerWidth
     const y = (-vector.y * 0.5 + 0.5) * window.innerHeight
@@ -274,7 +372,6 @@ function UploadedModel({
 
   const handleHotspotHoverEnd = () => {
     setHoveredHotspot(null)
-    setHotspotScreenPosition(null)
     onHotspotHoverEnd()
   }
 
@@ -285,22 +382,19 @@ function UploadedModel({
 
   return (
     <group ref={groupRef}>
-      <primitive object={scene} />
+      {scene && <primitive object={scene} />}
       {/* Hotspot markers */}
-      {hotspots.map((hotspot, i) => {
-        const position = getHotspotPosition(hotspot, i)
-        return (
-          <HotspotMarker
-            key={hotspot.id}
-            position={position}
-            hotspotId={hotspot.id}
-            onClick={handleHotspotClick}
-            onHover={handleHotspotHover}
-            onHoverEnd={handleHotspotHoverEnd}
-            hotspot={hotspot}
-          />
-        )
-      })}
+      {hotspotPositions.map((hotspotPos) => (
+        <HotspotMarker
+          key={hotspotPos.id}
+          position={[hotspotPos.position.x, hotspotPos.position.y, hotspotPos.position.z]}
+          hotspotId={hotspotPos.id}
+          onClick={handleHotspotClick}
+          onHover={handleHotspotHover}
+          onHoverEnd={handleHotspotHoverEnd}
+          hotspot={hotspotPos.hotspot}
+        />
+      ))}
       {clickedHotspot && hotspotScreenPosition && (
         <Html position={[0, 0, 0]} fullscreen>
           <HotspotOverlay
@@ -353,11 +447,17 @@ function DroneModel({
   })
 
   const handleHotspotClick = (id: string, position: THREE.Vector3, hotspot: any) => {
-    setClickedHotspot(hotspot)
-    const vector = position.clone().project(camera)
-    const x = (vector.x * 0.5 + 0.5) * window.innerWidth
-    const y = (-vector.y * 0.5 + 0.5) * window.innerHeight
-    setHotspotScreenPosition({ x, y })
+    // Clear any existing clicked hotspot before setting new one
+    setClickedHotspot(null);
+
+    // Only set clickedHotspot if there's content to display
+    if (hotspot.title || hotspot.summary) {
+      setClickedHotspot(hotspot)
+      const vector = position.clone().project(camera)
+      const x = (vector.x * 0.5 + 0.5) * window.innerWidth
+      const y = (-vector.y * 0.5 + 0.5) * window.innerHeight
+      setHotspotScreenPosition({ x, y })
+    }
     onHotspotClick(id, position, hotspot)
   }
 
@@ -372,7 +472,6 @@ function DroneModel({
 
   const handleHotspotHoverEnd = () => {
     setHoveredHotspot(null)
-    setHotspotScreenPosition(null)
     onHotspotHoverEnd()
   }
 

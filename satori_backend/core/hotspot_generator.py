@@ -25,8 +25,8 @@ class HotspotGenerator:
 
         genai.configure(api_key=api_key)
 
-        # Initialize the Gemini model. 'gemini-1.5-flash' is fast and supports JSON mode.
-        self.model = genai.GenerativeModel('gemini-1.5-flash-latest')
+        # Initialize the Gemini model. 'gemini-2.0-flash-lite' is fast and supports JSON mode.
+        self.model = genai.GenerativeModel('gemini-2.0-flash-lite')
         logger.info("HotspotGenerator initialized with Gemini model.")
 
     def _create_mapping_prompt(self, brochure_text: str, part_names: List[str]) -> str:
