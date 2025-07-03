@@ -1,44 +1,34 @@
 {
   "hotspots": [
     {
-      "feature_title": "Trio Beam LED Headlamps",
-      "marketing_summary": "Experience superior visibility and a striking design with the advanced Trio Beam LED headlamps and crescent glow LED DRLs.",
-      "matched_part_name": "16_headlight_glass_glass_0"
+      "feature_title": "Aerodynamic Design",
+      "marketing_summary": "Experience the thrill of enhanced downforce and a more aggressive stance, thanks to the meticulously crafted aerodynamics.",
+      "matched_part_name": "Kit1_Grille1_Geo_lodA_Porsche_911GT3TouringRewardRecycled_2022Grille1A_Material_0"
     },
     {
-      "feature_title": "Panoramic Sunroof",
-      "marketing_summary": "Savor the awe-inspiring beauty all around as you relish exquisite scenic views with the voice enabled smart panoramic sunroof.",
-      "matched_part_name": "11_car_top_glass_glass_0"
+      "feature_title": "High-Performance Brakes",
+      "marketing_summary": "Feel the confidence of superior stopping power with the high-performance brake system, designed for ultimate control.",
+      "matched_part_name": "polySurface1139_Porsche_911GT3TouringRewardRecycled_2022_CallipersCalliperA_Zone_Material_0"
     },
     {
-      "feature_title": "Bose Premium Sound System",
-      "marketing_summary": "Immerse yourself in an ultimate driving experience with the powerful, precision-tuned Bose Premium Sound System featuring 8 speakers.",
-      "matched_part_name": "26_inner_map_c_inner_map_0"
+      "feature_title": "4.0-Liter Engine",
+      "marketing_summary": "Unleash the roar of the 4.0-liter horizontally opposed, naturally aspirated engine, delivering 500 hp of pure performance.",
+      "matched_part_name": "Kit1_Base_Geo_lodA_Porsche_911GT3TouringRewardRecycled_2022Base_Material_0"
     },
     {
-      "feature_title": "Black Gloss Radiator Grille",
-      "marketing_summary": "Command attention with the bold, edgy design highlighted by the black gloss radiator grille with red insert.",
-      "matched_part_name": "14_car_body_black_plastic_plastic_2_0"
+      "feature_title": "Lightweight Construction",
+      "marketing_summary": "Benefit from the agility and responsiveness of lightweight construction, maximizing performance and handling.",
+      "matched_part_name": "Kit1_Carbon1_Geo_lodA_Porsche_911GT3TouringRewardRecycled_2022Carbon1_Material_0"
     },
     {
-      "feature_title": "Rear Window Sunshade",
-      "marketing_summary": "Enhance comfort and privacy with the practical and elegant rear window sunshade.",
-      "matched_part_name": "36_lr_door_inner_map_c_door_map_0"
+      "feature_title": "Sport Steering Wheel",
+      "marketing_summary": "Take control with the Sport steering wheel, featuring gearshift paddles for precise and direct gear changes.",
+      "matched_part_name": "bod_1:Kit1_Interior_Geo_lodABody_lodA_Porsche_911GT3TouringRewardRecycled_2022InteriorB_Material_0"
     },
     {
-      "feature_title": "Smartwatch Connectivity",
-      "marketing_summary": "Control your car from the comfort of your home or office using Alexa and the advanced Bluelink app with smartwatch integration.",
-      "matched_part_name": "26_inner_map_c_mirror_0"
-    },
-    {
-      "feature_title": "Ventilated Front Seats",
-      "marketing_summary": "Enjoy superior comfort on every ride with the front row ventilated seats.",
-      "matched_part_name": "27_inner_chair_map_c_chair_map_0"
-    },
-    {
-      "feature_title": "All-Wheel Disc Brakes",
-      "marketing_summary": "Experience enhanced safety and stopping power with the all-wheel disc brakes.",
-      "matched_part_name": "24_brake_disc_map_c_breaks_0"
+      "feature_title": "Porsche Doppelkupplung (PDK)",
+      "marketing_summary": "Experience lightning-fast gear changes with the PDK transmission, offering exhilarating acceleration and performance.",
+      "matched_part_name": "Kit1_Badge_Geo_lodA_Porsche_911GT3TouringRewardRecycled_2022BadgeB_Material_0"
     }
   ]
 }

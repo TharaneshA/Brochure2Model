@@ -8,7 +8,28 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
+        port: '',
+        pathname: '**',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '',
+        pathname: '**',
+      },
+      {
+        protocol: 'http',
+        hostname: 'backend',
+        port: '',
+        pathname: '**',
+      },
+    ],
   },
+  output: 'standalone', 
 }
 
 export default nextConfig

@@ -31,7 +31,7 @@ app = FastAPI(
 # Allows our Next.js frontend (running on a different port) to communicate with this backend.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # IMPORTANT: Restrict to your frontend's URL
+    allow_origins=["http://localhost:3000", "https://brochure2model.vercel.app"],  # IMPORTANT: Restrict to your frontend's URL and Vercel deployment
     allow_credentials=True,
     allow_methods=["POST", "GET"],
     allow_headers=["*"],
