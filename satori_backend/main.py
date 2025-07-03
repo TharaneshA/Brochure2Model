@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import List
 import uuid
+import datetime
 
 # Import our core logic modules
 import tempfile
@@ -172,9 +173,28 @@ async def generate_hotspots_endpoint(
     brochure_text = clean_extracted_text(combined_content)
     logger.info("PDF text extraction and cleaning complete.")
 
+    # Define output directory and create if it doesn't exist
+    output_dir = "C:\\project\\Brochure2Model\\satori_backend\\output"
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Generate a timestamp for unique filenames
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    # Save cleaned plaintext
+    plaintext_filename = os.path.join(output_dir, f"cleaned_plaintext_{timestamp}.txt")
+    with open(plaintext_filename, "w", encoding="utf-8") as f:
+        f.write(brochure_text)
+    logger.info(f"Cleaned plaintext saved to {plaintext_filename}")
+
     # 3. Generate hotspots using the Gemini model (delegated to our generator module)
     logger.info(f"Step 2: Generating hotspots for {len(part_names)} parts.")
     hotspots_data = hotspot_generator.generate_hotspots_from_text(brochure_text, part_names)
+
+    # Save Gemini model output JSON
+    gemini_output_filename = os.path.join(output_dir, f"gemini_output_{timestamp}.json")
+    with open(gemini_output_filename, "w", encoding="utf-8") as f:
+        json.dump(hotspots_data, f, indent=4)
+    logger.info(f"Gemini output saved to {gemini_output_filename}")
 
     # Ensure each hotspot has an ID and map marketing_summary to feature_description
     for hotspot in hotspots_data:
@@ -187,3 +207,24 @@ async def generate_hotspots_endpoint(
 
     logger.info("Successfully processed request.")
     return SummarizationResponse(hotspots=hotspots_data, key_selling_points=[])
+
+@app.post("/log-frontend-message")
+async def log_frontend_message(message: dict):
+    """
+    Receives log messages from the frontend and prints them to the backend terminal.
+    """
+    log_level = message.get("level", "info").lower()
+    log_content = message.get("content", "")
+    
+    if log_level == "debug":
+        logger.debug(f"Frontend Debug: {log_content}")
+    elif log_level == "info":
+        logger.info(f"Frontend Info: {log_content}")
+    elif log_level == "warn":
+        logger.warning(f"Frontend Warn: {log_content}")
+    elif log_level == "error":
+        logger.error(f"Frontend Error: {log_content}")
+    else:
+        logger.info(f"Frontend Log: {log_content}")
+    
+    return {"status": "success"}

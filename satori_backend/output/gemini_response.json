@@ -1,44 +1,44 @@
 {
   "hotspots": [
     {
-      "feature_title": "Striking Front Grille",
-      "marketing_summary": "Command attention with the ELANTRA's bold front grille, seamlessly integrated into the headlight architecture for a confident look.",
-      "matched_part_name": "H:Grille5_Grille5_Geo_lodA_Hyundai_ElantraNRewardRecycled_2022Grille5A_Material_H:Hyundai_ElantraNRewardRecycled_2022Grille5A_Material1_0"
+      "feature_title": "Trio Beam LED Headlamps",
+      "marketing_summary": "Experience superior visibility and a striking design with the advanced Trio Beam LED headlamps and crescent glow LED DRLs.",
+      "matched_part_name": "16_headlight_glass_glass_0"
     },
     {
-      "feature_title": "LED Headlights",
-      "marketing_summary": "Illuminate the road ahead with available LED headlights, providing superior visibility and a modern aesthetic.",
-      "matched_part_name": "H:Light_001_Light_Geo_lodA_Hyundai_ElantraNRewardRecycled_2022LightA_Material_H:Hyundai_ElantraNRewardRecycled_2022LightA_Material1_0"
+      "feature_title": "Panoramic Sunroof",
+      "marketing_summary": "Savor the awe-inspiring beauty all around as you relish exquisite scenic views with the voice enabled smart panoramic sunroof.",
+      "matched_part_name": "11_car_top_glass_glass_0"
     },
     {
-      "feature_title": "18\" Alloy Wheels",
-      "marketing_summary": "Enhance your ELANTRA's sporty profile with available 18-inch alloy wheels, designed for both style and performance.",
-      "matched_part_name": "H:Wheel_1A_LF_Combined3DWheel_3DWheel_Front_LInstance1_Src4_043_Hyundai_ElantraNRewardRecycled_2022_Wheel1A_3D_3DWheel2A_Materi_H:Hyundai_ElantraNRewardRecycled_2022_Wheel2A_3D_3DWheel1A_Materi1_0"
+      "feature_title": "Bose Premium Sound System",
+      "marketing_summary": "Immerse yourself in an ultimate driving experience with the powerful, precision-tuned Bose Premium Sound System featuring 8 speakers.",
+      "matched_part_name": "26_inner_map_c_inner_map_0"
     },
     {
-      "feature_title": "10.25\" Touch-screen Display",
-      "marketing_summary": "Experience seamless control with the available 10.25\" touch-screen display, your command center for entertainment and information.",
-      "matched_part_name": "H:Interior_Interior_Geo_lodA_Hyundai_ElantraNRewardRecycled_2022InteriorA_Material_H:Hyundai_ElantraNRewardRecycled_2022InteriorA_Material1_0"
+      "feature_title": "Black Gloss Radiator Grille",
+      "marketing_summary": "Command attention with the bold, edgy design highlighted by the black gloss radiator grille with red insert.",
+      "matched_part_name": "14_car_body_black_plastic_plastic_2_0"
     },
     {
-      "feature_title": "Bose\u00ae Premium Audio",
-      "marketing_summary": "Immerse yourself in a world of sound with the available Bose\u00ae Premium Audio system, delivering an unparalleled listening experience.",
-      "matched_part_name": "H:Interior_Interior_Geo_lodA_Hyundai_ElantraNRewardRecycled_2022InteriorA_Material_H:Hyundai_ElantraNRewardRecycled_2022InteriorA_Material1_0"
+      "feature_title": "Rear Window Sunshade",
+      "marketing_summary": "Enhance comfort and privacy with the practical and elegant rear window sunshade.",
+      "matched_part_name": "36_lr_door_inner_map_c_door_map_0"
     },
     {
-      "feature_title": "N Line Sport Seats",
-      "marketing_summary": "Sink into the exclusive N Line sport seats, embossed with the 'N' logo and featuring red contrast stitching, for a sporty and luxurious feel.",
-      "matched_part_name": "H:Interior_Interior_Geo_lodA_Hyundai_ElantraNRewardRecycled_2022InteriorA_Material_H:Hyundai_ElantraNRewardRecycled_2022InteriorA_Material1_0"
+      "feature_title": "Smartwatch Connectivity",
+      "marketing_summary": "Control your car from the comfort of your home or office using Alexa and the advanced Bluelink app with smartwatch integration.",
+      "matched_part_name": "26_inner_map_c_mirror_0"
     },
     {
-      "feature_title": "Sport-tuned Suspension and Steering",
-      "marketing_summary": "Enjoy a more dynamic drive with the N Line's sport-tuned suspension and steering, making cornering a true pleasure.",
-      "matched_part_name": "H:Engine_Engine_Geo_lodA_Hyundai_ElantraNRewardRecycled_2022EngineA_Material_H:Hyundai_ElantraNRewardRecycled_2022EngineA_Material1_0"
+      "feature_title": "Ventilated Front Seats",
+      "marketing_summary": "Enjoy superior comfort on every ride with the front row ventilated seats.",
+      "matched_part_name": "27_inner_chair_map_c_chair_map_0"
     },
     {
-      "feature_title": "Wireless Charging Pad",
-      "marketing_summary": "Keep your devices powered up effortlessly with the available wireless charging pad, a convenient and modern touch.",
-      "matched_part_name": "H:Interior_Interior_Geo_lodA_Hyundai_ElantraNRewardRecycled_2022InteriorA_Material_H:Hyundai_ElantraNRewardRecycled_2022InteriorA_Material1_0"
+      "feature_title": "All-Wheel Disc Brakes",
+      "marketing_summary": "Experience enhanced safety and stopping power with the all-wheel disc brakes.",
+      "matched_part_name": "24_brake_disc_map_c_breaks_0"
     }
   ]
 }

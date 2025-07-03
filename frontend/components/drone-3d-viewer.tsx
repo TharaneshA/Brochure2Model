@@ -23,6 +23,7 @@ import {
 import { HotspotOverlay } from "./hotspot-overlay"
 import * as THREE from "three"
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import { useGLTF } from '@react-three/drei'
 
 // Pulsating hotspot marker component
 function HotspotMarker({
@@ -179,73 +180,103 @@ function UploadedModel({
     hotspot: any
   }[]>([])
 
+  // Function to send log messages to the backend
+  const sendLogToBackend = async (level: string, content: string) => {
+    try {
+      await fetch("http://localhost:8000/log-frontend-message", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ level, content }),
+      });
+    } catch (error) {
+      console.error("Failed to send log to backend:", error);
+    }
+  };
+
   // Function to find mesh position by name
-    const findMeshPosition = (partName: string): THREE.Vector3 | null => {
-    if (!partName || !scene) {
-      console.warn("findMeshPosition: partName or scene is undefined.", { partName, scene })
-      return null
+    const { scene: gltfScene, nodes } = useGLTF(modelUrl) // Call useGLTF once at the top level
+
+  // Function to find mesh position by name
+  const findMeshPosition = (partName: string, currentScene: THREE.Group | null): THREE.Vector3 | null => {
+    sendLogToBackend("info", `findMeshPosition called for partName: '${partName}' with currentScene: ${currentScene ? 'available' : 'null'}`);
+    if (!partName || !currentScene) {
+      sendLogToBackend("warn", `findMeshPosition: partName or currentScene is undefined. partName: ${partName}`);
+      return null;
     }
 
-    let foundMesh: THREE.Object3D | undefined;
+    let foundObject: THREE.Object3D | undefined;
 
     // Try exact match first (case-sensitive)
-    foundMesh = scene.getObjectByName(partName);
+    foundObject = currentScene.getObjectByName(partName);
+    if (foundObject) {
+      const worldPos = new THREE.Vector3();
+       if (foundObject instanceof THREE.Mesh) {
+         foundObject.geometry.computeBoundingBox();
+         foundObject.geometry.boundingBox?.getCenter(worldPos);
+         foundObject.localToWorld(worldPos);
+       } else {
+         foundObject.getWorldPosition(worldPos);
+       }
+       sendLogToBackend("info", `Exact match found for partName: '${partName}'. Object type: ${foundObject.type}. Coordinates: x=${worldPos.x.toFixed(2)}, y=${worldPos.y.toFixed(2)}, z=${worldPos.z.toFixed(2)}`);
+       return worldPos;
+    }
 
-    // If not found, try case-insensitive exact match
-    if (!foundMesh) {
-      scene.traverse((object) => {
-        if (object.name.toLowerCase() === partName.toLowerCase()) {
-          foundMesh = object;
-          return false; // Stop traversal
-        }
-      });
+    // If not found, try case-insensitive exact match by traversing
+    currentScene.traverse((object) => {
+      if (object.name.toLowerCase() === partName.toLowerCase()) {
+        foundObject = object;
+        return; // Stop traversal
+      }
+    });
+    if (foundObject) {
+      const worldPos = new THREE.Vector3();
+       if (foundObject instanceof THREE.Mesh) {
+         foundObject.geometry.computeBoundingBox();
+         foundObject.geometry.boundingBox?.getCenter(worldPos);
+         foundObject.localToWorld(worldPos);
+       } else {
+         foundObject.getWorldPosition(worldPos);
+       }
+       sendLogToBackend("info", `Case-insensitive exact match found for partName: '${partName}' with object name '${foundObject.name}'. Object type: ${foundObject.type}. Coordinates: x=${worldPos.x.toFixed(2)}, y=${worldPos.y.toFixed(2)}, z=${worldPos.z.toFixed(2)}`);
+       return worldPos;
     }
 
     // If still not found, try partial matching with segments of the partName
-    if (!foundMesh) {
-      const partNameSegments = partName.split(/[_:\s-]/).filter(s => s.length > 2); // Split by common delimiters and filter short segments
+    const partNameSegments = partName.split(/[_:\s-]/).filter(s => s.length > 2);
+    let bestMatch: THREE.Object3D | undefined;
+    let maxMatches = 0;
+
+    currentScene.traverse((object) => {
+      let currentMatches = 0;
       for (const segment of partNameSegments) {
-        scene.traverse((object) => {
-          if (object.name.toLowerCase().includes(segment.toLowerCase())) {
-            foundMesh = object;
-            return false; // Stop traversal
-          }
-        });
-        if (foundMesh) break; // If a segment match is found, stop searching
+        if (object.name.toLowerCase().includes(segment.toLowerCase())) {
+          currentMatches++;
+        }
       }
+      if (currentMatches > maxMatches) {
+        maxMatches = currentMatches;
+        bestMatch = object;
+      }
+    });
+    foundObject = bestMatch;
+    if (foundObject) {
+      const worldPos = new THREE.Vector3();
+       if (foundObject instanceof THREE.Mesh) {
+         foundObject.geometry.computeBoundingBox();
+         foundObject.geometry.boundingBox?.getCenter(worldPos);
+         foundObject.localToWorld(worldPos);
+       } else {
+         foundObject.getWorldPosition(worldPos);
+       }
+       sendLogToBackend("info", `Partial match found for partName: '${partName}' with object name '${foundObject.name}'. Object type: ${foundObject.type}. Coordinates: x=${worldPos.x.toFixed(2)}, y=${worldPos.y.toFixed(2)}, z=${worldPos.z.toFixed(2)}`);
+       return worldPos;
     }
 
-    // If still not found, try if the object's name includes the partName
-    if (!foundMesh) {
-      scene.traverse((object) => {
-        if (object.name.toLowerCase().includes(partName.toLowerCase())) {
-          foundMesh = object;
-          return false; // Stop traversal
-        }
-      });
-    }
-
-    // If still not found, try if the partName includes the object's name
-    if (!foundMesh) {
-      scene.traverse((object) => {
-        if (partName.toLowerCase().includes(object.name.toLowerCase())) {
-          foundMesh = object;
-          return false; // Stop traversal
-        }
-      });
-    }
-
-    if (foundMesh) {
-      // Ensure world matrix is up to date for correct position calculation
-      foundMesh.updateWorldMatrix(true, false)
-      const worldPosition = new THREE.Vector3()
-      foundMesh.getWorldPosition(worldPosition)
-      return worldPosition
-    }
-
-    console.warn(`Mesh with part name '${partName}' not found in the scene.`) // Log if mesh is not found
-    return null
-  }
+    sendLogToBackend("warn", `Mesh with part name '${partName}' not found in the scene.`);
+    return null;
+  };
 
   // Load GLTF model
   useEffect(() => {
@@ -273,10 +304,11 @@ function UploadedModel({
 
         setScene(loadedScene)
 
+
         },
         undefined,
       (error) => {
-        console.error("An error occurred loading the GLTF model:", error)
+        sendLogToBackend("error", `An error occurred loading the GLTF model: ${error}`);
       }
     )
   }, [modelUrl])
@@ -286,13 +318,11 @@ function UploadedModel({
     if (scene && modelBounds && hotspots.length > 0) {
       const newHotspotPositions = hotspots
         .map((hotspot) => {
-          const position = findMeshPosition(hotspot.matched_part_name)
+          const position = findMeshPosition(hotspot.matched_part_name, scene)
           if (position) {
             return { id: hotspot.id, position, hotspot }
           } else {
-            console.warn(
-              `Could not find mesh for hotspot '${hotspot.feature_title}' with part name '${hotspot.matched_part_name}'. Falling back to generated position.`
-            )
+            sendLogToBackend("warn", `Could not find mesh for hotspot '${hotspot.feature_title}' with part name '${hotspot.matched_part_name}'. Falling back to generated position.`);
             // Fallback to a generated position if mesh not found
             const size = modelBounds.getSize(new THREE.Vector3())
             const center = new THREE.Vector3(0, 0, 0) // Model is centered at origin
@@ -337,7 +367,6 @@ function UploadedModel({
   })
 
   const handleHotspotClick = (id: string, position: THREE.Vector3, hotspot: any) => {
-    console.log("Clicked Hotspot:", hotspot);
     
     // Ensure hotspot has required properties for HotspotOverlay
     const formattedHotspot = {
