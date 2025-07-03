@@ -11,7 +11,7 @@
 
 This tool is designed for marketing teams, product managers, and sales professionals to create stunning, web-based product showcases with minimal effort.
 
-![image](https://github.com/user-attachments/assets/b19d9de8-ec2f-4923-a6b3-de5885bf67b6)
+![image](https://github.com/user-attachments/assets/ce5fff1d-864e-42ae-8aa2-c2a394d3b78c)
 
 ---
 
