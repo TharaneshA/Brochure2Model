@@ -4,6 +4,7 @@ import logging
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from pygltflib import GLTF2
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from typing import List
 import uuid
