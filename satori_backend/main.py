@@ -77,6 +77,10 @@ def read_root():
     """A simple endpoint to confirm the API is running."""
     return {"status": "Brochure2Model API is online."}
 
+@app.get("/ping")
+async def ping():
+    """A simple endpoint for health checks."""
+    return "ping"
 @app.post("/extract-parts")
 async def extract_parts_endpoint(
     model: UploadFile = File(..., description="The GLB 3D model file.")
