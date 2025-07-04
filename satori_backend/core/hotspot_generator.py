@@ -44,7 +44,7 @@ Your task is to analyze a car brochure's text and map its key selling points to 
     {brochure_text}
     ---
 
-2.  **3D Model Part Names:** The 3D model contains the following named parts. You MUST map features to one of these exact names.
+2.  **3D Model Part Names:** The 3D model contains the following named parts. You MUST map features to one of these exact names, don't repeat part names.
     ```json
     {json.dumps(part_names, indent=2)}
     ```
