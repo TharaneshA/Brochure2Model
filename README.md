@@ -11,7 +11,9 @@
 
 This tool is designed for marketing teams, product managers, and sales professionals to create stunning, web-based product showcases with minimal effort.
 
-![image](https://github.com/user-attachments/assets/ce5fff1d-864e-42ae-8aa2-c2a394d3b78c)
+<h2>Brochure2Model Demo</h2>
+
+https://github.com/user-attachments/assets/23b32497-6ab8-4140-b352-361b208ad037
 
 ---
 
@@ -105,6 +107,9 @@ pnpm run dev
 ```
 
 ##💡 Usage
+
+![image](https://github.com/user-attachments/assets/ce5fff1d-864e-42ae-8aa2-c2a394d3b78c)
+
 Open the application in your browser (http://localhost:3000).
 
 Click "Upload 3D Model (.glb)" and select a .glb or .gltf file.
