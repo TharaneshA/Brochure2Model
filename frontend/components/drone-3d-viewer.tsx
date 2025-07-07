@@ -867,8 +867,8 @@ export function Drone3DViewer({ hotspots, onHotspotClick, modelUrl, focusHotspot
             enablePan={true}
             enableZoom={true}
             enableRotate={true}
-            minDistance={3}
-            maxDistance={15}
+            minDistance={0.1}
+            maxDistance={100}
             autoRotate={false}
           />
           {cameraTarget && (
