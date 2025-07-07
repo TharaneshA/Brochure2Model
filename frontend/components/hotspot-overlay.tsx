@@ -32,7 +32,7 @@ export function HotspotOverlay({ hotspot, position, onClose }: HotspotOverlayPro
       }}
     >
       <Card className="bg-gray-900/95 backdrop-blur-sm border-gray-700 shadow-2xl">
-        <CardContent className="p-4">
+        <CardContent className="p-4 max-h-60 overflow-y-auto">
           {(hotspot.feature_title || hotspot.feature_description) ? (
             <>
               <div className="flex items-start justify-between mb-3">

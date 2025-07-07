@@ -110,7 +110,7 @@ function HotspotMarker({
 
       {/* Simple tooltip that follows the hotspot - just title */}
       {isHovered && (
-        <Html position={[0, 0.3, 0]} center distanceFactor={10} occlude={false} style={{ pointerEvents: "none" }}>
+        <Html position={[0, 0.3, 0]} center occlude={false} style={{ pointerEvents: "none" }}>
           <div className="bg-gray-900/95 backdrop-blur-sm border border-gray-700 rounded-lg px-3 py-2 shadow-xl whitespace-nowrap">
             <h4 className="text-white font-medium text-sm font-['Inter']">{hotspot.title}</h4>
           </div>
