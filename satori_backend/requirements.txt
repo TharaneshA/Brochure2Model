@@ -7,3 +7,4 @@ PyMuPDF
 pdfplumber
 pygltflib
 google-cloud-texttospeech
+google-generativeai
