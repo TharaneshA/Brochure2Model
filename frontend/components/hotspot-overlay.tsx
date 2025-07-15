@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { X, ExternalLink, Volume2 } from "lucide-react"
 import { useState, useEffect, useRef } from 'react';
+import { API_BASE_URL } from '@/services/api';
 
 
 
@@ -57,7 +58,7 @@ function PlayAudioButton({ text }: PlayAudioButtonProps) {
 
     try {
       // Replace with your actual backend URL
-      const response = await fetch('http://localhost:8000/generate-tts-audio', {
+      const response = await fetch(`${API_BASE_URL}/generate-tts-audio`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

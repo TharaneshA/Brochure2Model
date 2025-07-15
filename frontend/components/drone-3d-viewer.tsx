@@ -24,6 +24,7 @@ import { HotspotOverlay } from "./hotspot-overlay"
 import * as THREE from "three"
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { useGLTF } from '@react-three/drei'
+import { API_BASE_URL } from '@/services/api';
 
 // Pulsating hotspot marker component
 function HotspotMarker({
@@ -183,7 +184,7 @@ function UploadedModel({
   // Function to send log messages to the backend
   const sendLogToBackend = async (level: string, content: string) => {
     try {
-      await fetch("http://localhost:8000/log-frontend-message", {
+      await fetch(`${API_BASE_URL}/log-frontend-message`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
