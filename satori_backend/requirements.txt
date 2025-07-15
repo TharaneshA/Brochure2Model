@@ -1,8 +1,9 @@
 fastapi
 uvicorn[standard]
 python-multipart
-google-generativeai
+boto3
 python-dotenv
 PyMuPDF
 pdfplumber
 pygltflib
+google-cloud-texttospeech

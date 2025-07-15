@@ -110,9 +110,9 @@ function HotspotMarker({
 
       {/* Simple tooltip that follows the hotspot - just title */}
       {isHovered && (
-        <Html position={[0, 0.3, 0]} center occlude={false} style={{ pointerEvents: "none" }}>
+        <Html position={[0, 0.3, 0]} center occlude={false} style={{ pointerEvents: "none" }} scale={1.5}>
           <div className="bg-gray-900/95 backdrop-blur-sm border border-gray-700 rounded-lg px-3 py-2 shadow-xl whitespace-nowrap">
-            <h4 className="text-white font-medium text-sm font-['Inter']">{hotspot.title}</h4>
+              <h4 className="text-white font-medium text-sm font-['Inter']">{hotspot.title}</h4>
           </div>
         </Html>
       )}
@@ -127,7 +127,7 @@ function ScaleIndicator({ zoom }: { zoom: number }) {
   return (
     <group position={[-3, -2, 0]}>
       {/* Scale bar */}
-      <Box args={[scale, 0.02, 0.02]} position={[scale / 2, 0, 0]}>
+      <Box args={[scale, 0.02, 0.02]} position={[scale / 1, 0, 0]}>
         <meshBasicMaterial color="#ffffff" />
       </Box>
       {/* Scale markers */}

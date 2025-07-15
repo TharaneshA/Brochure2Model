@@ -1,34 +1,44 @@
 {
   "hotspots": [
     {
-      "feature_title": "Aerodynamic Design",
-      "marketing_summary": "Experience the thrill of enhanced downforce and a more aggressive stance, thanks to the meticulously crafted aerodynamics.",
-      "matched_part_name": "Kit1_Grille1_Geo_lodA_Porsche_911GT3TouringRewardRecycled_2022Grille1A_Material_0"
+      "feature_title": "Trio Beam LED Headlamps",
+      "marketing_summary": "Experience superior visibility and a modern aesthetic with the striking Trio Beam LED headlamps featuring crescent glow LED DRLs.",
+      "matched_part_name": "16_headlight_map_lights_0"
     },
     {
-      "feature_title": "High-Performance Brakes",
-      "marketing_summary": "Feel the confidence of superior stopping power with the high-performance brake system, designed for ultimate control.",
-      "matched_part_name": "polySurface1139_Porsche_911GT3TouringRewardRecycled_2022_CallipersCalliperA_Zone_Material_0"
+      "feature_title": "Black Gloss Roof Rails",
+      "marketing_summary": "Enhance your CRETA's sporty look and versatility with sleek, black gloss roof rails.",
+      "matched_part_name": "10_car_plastic_plastic_0"
     },
     {
-      "feature_title": "4.0-Liter Engine",
-      "marketing_summary": "Unleash the roar of the 4.0-liter horizontally opposed, naturally aspirated engine, delivering 500 hp of pure performance.",
-      "matched_part_name": "Kit1_Base_Geo_lodA_Porsche_911GT3TouringRewardRecycled_2022Base_Material_0"
+      "feature_title": "Bose Premium Sound System",
+      "marketing_summary": "Immerse yourself in an ultimate sound experience with the powerful, precision-tuned Bose Premium Sound System, featuring 8 speakers.",
+      "matched_part_name": "54_inner_map_inner_map_0"
     },
     {
-      "feature_title": "Lightweight Construction",
-      "marketing_summary": "Benefit from the agility and responsiveness of lightweight construction, maximizing performance and handling.",
-      "matched_part_name": "Kit1_Carbon1_Geo_lodA_Porsche_911GT3TouringRewardRecycled_2022Carbon1_Material_0"
+      "feature_title": "Smart Panoramic Sunroof",
+      "marketing_summary": "Savor the awe-inspiring beauty all around when you get in Hyundai CRETA.",
+      "matched_part_name": "07_car_sky_black_glass_0"
     },
     {
-      "feature_title": "Sport Steering Wheel",
-      "marketing_summary": "Take control with the Sport steering wheel, featuring gearshift paddles for precise and direct gear changes.",
-      "matched_part_name": "bod_1:Kit1_Interior_Geo_lodABody_lodA_Porsche_911GT3TouringRewardRecycled_2022InteriorB_Material_0"
+      "feature_title": "Black Gloss Radiator Grille",
+      "marketing_summary": "Command attention with the distinctive Black Gloss radiator grille featuring a bold red insert for an unmistakably sporty look.",
+      "matched_part_name": "10_car_plastic_plastic_0"
     },
     {
-      "feature_title": "Porsche Doppelkupplung (PDK)",
-      "marketing_summary": "Experience lightning-fast gear changes with the PDK transmission, offering exhilarating acceleration and performance.",
-      "matched_part_name": "Kit1_Badge_Geo_lodA_Porsche_911GT3TouringRewardRecycled_2022BadgeB_Material_0"
+      "feature_title": "Electric Parking Brake",
+      "marketing_summary": "Enjoy enhanced convenience and safety with the Electric Parking Brake featuring Auto Hold functionality.",
+      "matched_part_name": "54_inner_map_mirror_0"
+    },
+    {
+      "feature_title": "LED Tail Lamps",
+      "marketing_summary": "Make a lasting impression with the sleek and stylish LED tail lamps.",
+      "matched_part_name": "13_car_map_c_lights_0"
+    },
+    {
+      "feature_title": "Bluelink Connected Car Features",
+      "marketing_summary": "Stay connected and in control with the advanced Bluelink app, offering over 50 features and OTA map updates.",
+      "matched_part_name": "54_inner_map_mirror_0"
     }
   ]
 }

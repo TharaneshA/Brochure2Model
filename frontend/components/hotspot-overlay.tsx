@@ -2,7 +2,10 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { X, ExternalLink } from "lucide-react"
+import { X, ExternalLink, Volume2 } from "lucide-react"
+import { useState, useEffect, useRef } from 'react';
+
+
 
 interface Hotspot {
   id: string
@@ -17,6 +20,96 @@ interface HotspotOverlayProps {
   onClose: () => void
 }
 
+interface PlayAudioButtonProps {
+  text: string;
+}
+
+function PlayAudioButton({ text }: PlayAudioButtonProps) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  useEffect(() => {
+    // Cleanup function to stop audio if component unmounts
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+        URL.revokeObjectURL(audioRef.current.src);
+      }
+    };
+  }, []);
+
+  const handlePlay = async () => {
+    if (isPlaying) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+      setIsPlaying(false);
+      return;
+    }
+
+    if (audioRef.current && audioRef.current.src) {
+      audioRef.current.play();
+      setIsPlaying(true);
+      return;
+    }
+
+    try {
+      // Replace with your actual backend URL
+      const response = await fetch('http://localhost:8000/generate-tts-audio', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const audioBlob = await response.blob();
+      const url = URL.createObjectURL(audioBlob);
+
+      if (audioRef.current) {
+        audioRef.current.src = url;
+        audioRef.current.play();
+        setIsPlaying(true);
+      } else {
+        audioRef.current = new Audio(url);
+        audioRef.current.play();
+        setIsPlaying(true);
+
+        audioRef.current.onended = () => {
+          setIsPlaying(false);
+          if (audioRef.current) {
+            URL.revokeObjectURL(audioRef.current.src);
+            audioRef.current.src = '';
+          }
+        };
+      }
+      console.log('Attempted to play audio using HTMLAudioElement.');
+    } catch (error) {
+      console.error('Error fetching TTS audio:', error);
+      // Optionally, show a toast notification to the user
+    }
+  };
+
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={handlePlay}
+      className="border-gray-600 text-gray-300 hover:bg-gray-800 font-['Inter'] bg-transparent"
+      disabled={!text} // Disable if no text to play
+    >
+      <Volume2 className="h-3 w-3 mr-1" />
+      {isPlaying ? 'Stop Audio' : 'Play Audio'}
+    </Button>
+  );
+}
+
 export function HotspotOverlay({ hotspot, position, onClose }: HotspotOverlayProps) {
   if (!hotspot.feature_title && !hotspot.feature_description) {
     return null;
@@ -24,7 +117,7 @@ export function HotspotOverlay({ hotspot, position, onClose }: HotspotOverlayPro
 
   return (
     <div
-      className="absolute z-50 w-80 pointer-events-auto"
+      className="absolute z-50 w-96 pointer-events-auto"
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
@@ -32,7 +125,7 @@ export function HotspotOverlay({ hotspot, position, onClose }: HotspotOverlayPro
       }}
     >
       <Card className="bg-gray-900/95 backdrop-blur-sm border-gray-700 shadow-2xl">
-        <CardContent className="p-4 max-h-60 overflow-y-auto">
+        <CardContent className="p-4 w-96 max-h-[80rem] overflow-y-auto">
           {(hotspot.feature_title || hotspot.feature_description) ? (
             <>
               <div className="flex items-start justify-between mb-3">
@@ -59,6 +152,7 @@ export function HotspotOverlay({ hotspot, position, onClose }: HotspotOverlayPro
                 >
                   Share
                 </Button>
+                <PlayAudioButton text={hotspot.feature_description} />
               </div>
             </>
           ) : null}
