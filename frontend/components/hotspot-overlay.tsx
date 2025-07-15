@@ -117,7 +117,7 @@ export function HotspotOverlay({ hotspot, position, onClose }: HotspotOverlayPro
 
   return (
     <div
-      className="absolute z-50 w-80 pointer-events-auto"
+      className="absolute z-50 w-96 pointer-events-auto"
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
@@ -125,7 +125,7 @@ export function HotspotOverlay({ hotspot, position, onClose }: HotspotOverlayPro
       }}
     >
       <Card className="bg-gray-900/95 backdrop-blur-sm border-gray-700 shadow-2xl">
-        <CardContent className="p-4 max-h-60 overflow-y-auto">
+        <CardContent className="p-4 w-96 max-h-[80rem] overflow-y-auto">
           {(hotspot.feature_title || hotspot.feature_description) ? (
             <>
               <div className="flex items-start justify-between mb-3">

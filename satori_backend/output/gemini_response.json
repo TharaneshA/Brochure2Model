@@ -1,44 +1,44 @@
 {
   "hotspots": [
     {
-      "feature_title": "Sporty Design",
-      "marketing_summary": "The 2015 Coupe's sporty design is sure to turn heads.",
-      "matched_part_name": "h:BumperF6_Mesh_014_M_Opaque_PlasticSmoothBlack_Max_001_h:M_Opaque_PlasticSmoothBlack_Max1_0"
+      "feature_title": "Trio Beam LED Headlamps",
+      "marketing_summary": "Experience superior visibility and a modern aesthetic with the striking Trio Beam LED headlamps featuring crescent glow LED DRLs.",
+      "matched_part_name": "16_headlight_map_lights_0"
     },
     {
-      "feature_title": "7-inch Display Audio",
-      "marketing_summary": "Experience a 7-inch Display Audio with an electrostatic touch-screen that does almost everything your smartphone does.",
-      "matched_part_name": "h:Interior5_Mesh_009_M_Interior_Max_h:M_InteriorTiled_Common_Max1_0"
+      "feature_title": "Black Gloss Roof Rails",
+      "marketing_summary": "Enhance your CRETA's sporty look and versatility with sleek, black gloss roof rails.",
+      "matched_part_name": "10_car_plastic_plastic_0"
     },
     {
-      "feature_title": "Rearview Camera",
-      "marketing_summary": "Backing up has never been easier, thanks to a rearview camera found on every Civic.",
-      "matched_part_name": "h:Boot6_Mesh_011_M_Light_Max_h:M_Light_Max1_0"
+      "feature_title": "Bose Premium Sound System",
+      "marketing_summary": "Immerse yourself in an ultimate sound experience with the powerful, precision-tuned Bose Premium Sound System, featuring 8 speakers.",
+      "matched_part_name": "54_inner_map_inner_map_0"
     },
     {
-      "feature_title": "17-inch Alloy Wheels (EX-L)",
-      "marketing_summary": "The EX-L trim turns heads with aggressive styling, including 17-inch alloy wheels.",
-      "matched_part_name": "WheelFL6_Mesh_035_M_RimBadge_Max_h:M_RimBadge_Max1_0"
+      "feature_title": "Smart Panoramic Sunroof",
+      "marketing_summary": "Savor the awe-inspiring beauty all around when you get in Hyundai CRETA.",
+      "matched_part_name": "07_car_sky_black_glass_0"
     },
     {
-      "feature_title": "Paddle Shifters",
-      "marketing_summary": "The Civic makes shifting gears so much more fun with sports car-inspired paddle shifters (EX, EX-L Coupe with CVT).",
-      "matched_part_name": "h:SteeringWheel5_Mesh_010_M_Interior_Max_h:M_InteriorTiled_Common_Max1_0"
+      "feature_title": "Black Gloss Radiator Grille",
+      "marketing_summary": "Command attention with the distinctive Black Gloss radiator grille featuring a bold red insert for an unmistakably sporty look.",
+      "matched_part_name": "10_car_plastic_plastic_0"
     },
     {
-      "feature_title": "Smart Entry",
-      "marketing_summary": "Get in the Civic without ever taking your keys out of your pocket or purse.",
-      "matched_part_name": "h:DoorL4_Mesh_002_M_Interior_Max1_h:M_Opaque_PlasticSmoothBlack_Max1_0"
+      "feature_title": "Electric Parking Brake",
+      "marketing_summary": "Enjoy enhanced convenience and safety with the Electric Parking Brake featuring Auto Hold functionality.",
+      "matched_part_name": "54_inner_map_mirror_0"
     },
     {
-      "feature_title": "Honda LaneWatch",
-      "marketing_summary": "See nearly four times more area than the mirror alone, thanks to a small camera under the passenger-side mirror.",
-      "matched_part_name": "h:MirrorR6_Mesh_029_M_LightGlass_Clear_Low_004_h:M_Glass_WindowFront_Low1_0"
+      "feature_title": "LED Tail Lamps",
+      "marketing_summary": "Make a lasting impression with the sleek and stylish LED tail lamps.",
+      "matched_part_name": "13_car_map_c_lights_0"
     },
     {
-      "feature_title": "205-hp Engine (Si)",
-      "marketing_summary": "The Civic Si delivers power to you in the form of a 205-hp engine.",
-      "matched_part_name": "h:Chassis7_Mesh_M_Opaque_PlasticSmoothBlack_Max_h:M_Engine_Max1_0"
+      "feature_title": "Bluelink Connected Car Features",
+      "marketing_summary": "Stay connected and in control with the advanced Bluelink app, offering over 50 features and OTA map updates.",
+      "matched_part_name": "54_inner_map_mirror_0"
     }
   ]
 }
