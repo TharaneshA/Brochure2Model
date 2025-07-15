@@ -6,3 +6,4 @@ python-dotenv
 PyMuPDF
 pdfplumber
 pygltflib
+google-cloud-texttospeech

@@ -2,7 +2,11 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { X, ExternalLink } from "lucide-react"
+import { X, ExternalLink, Volume2 } from "lucide-react"
+import { useState, useEffect } from 'react';
+import useSound from 'use-sound';
+
+
 
 interface Hotspot {
   id: string
@@ -15,6 +19,88 @@ interface HotspotOverlayProps {
   hotspot: Hotspot
   position: { x: number; y: number }
   onClose: () => void
+}
+
+interface PlayAudioButtonProps {
+  text: string;
+}
+
+function PlayAudioButton({ text }: PlayAudioButtonProps) {
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [play, { stop, isPlaying }] = useSound(audioUrl || '', {
+    onend: () => setAudioUrl(null), // Clear URL after playing
+    format: ['mp3']
+  }) as unknown as [() => void, { stop: () => void; isPlaying: boolean }];
+
+  useEffect(() => {
+    // Cleanup function to stop audio if component unmounts or text changes
+    return () => {
+      if (isPlaying) {
+        stop();
+      }
+    };
+  }, [text, isPlaying, stop]);
+
+  const handlePlay = async () => {
+    if (isPlaying) {
+      stop();
+      setAudioUrl(null);
+      return;
+    }
+
+    if (audioUrl) {
+      play();
+      return;
+    }
+
+    try {
+      // Replace with your actual backend URL
+      const response = await fetch('http://localhost:8000/generate-tts-audio', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const audioBlob = base64toBlob(data.audio_content, 'audio/mp3');
+      const url = URL.createObjectURL(audioBlob);
+      setAudioUrl(url);
+      play();
+    } catch (error) {
+      console.error('Error fetching TTS audio:', error);
+      // Optionally, show a toast notification to the user
+    }
+  };
+
+  // Helper function to convert base64 to Blob
+  const base64toBlob = (base64: string, type: string) => {
+    const byteCharacters = atob(base64);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    return new Blob([byteArray], { type: type });
+  };
+
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={handlePlay}
+      className="border-gray-600 text-gray-300 hover:bg-gray-800 font-['Inter'] bg-transparent"
+      disabled={!text} // Disable if no text to play
+    >
+      <Volume2 className="h-3 w-3 mr-1" />
+      {isPlaying ? 'Stop Audio' : 'Play Audio'}
+    </Button>
+  );
 }
 
 export function HotspotOverlay({ hotspot, position, onClose }: HotspotOverlayProps) {
@@ -59,6 +145,7 @@ export function HotspotOverlay({ hotspot, position, onClose }: HotspotOverlayPro
                 >
                   Share
                 </Button>
+                <PlayAudioButton text={hotspot.feature_description} />
               </div>
             </>
           ) : null}

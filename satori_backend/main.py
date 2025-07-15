@@ -10,6 +10,11 @@ from typing import List
 import uuid
 import datetime
 
+import base64
+import google.generativeai as genai
+import os
+
+
 # Import our core logic modules
 import tempfile
 import os
@@ -62,6 +67,12 @@ class SummarizationResponse(BaseModel):
     hotspots: List[Hotspot]
     key_selling_points: List[str] = Field(default_factory=list)
 
+class TextToSpeechRequest(BaseModel):
+    text: str
+
+class TextToSpeechResponse(BaseModel):
+    audio_content: str
+
 # --- Initialize our Generator ---
 # Best practice: Initialize heavyweight objects once on application startup.
 try:
@@ -78,6 +89,185 @@ def read_root():
     """A simple endpoint to confirm the API is running."""
     return {"status": "Brochure2Model API is online."}
 
+@app.post("/generate-tts-audio", response_model=TextToSpeechResponse)
+async def generate_tts_audio(request: TextToSpeechRequest):
+    """Generates speech audio from text using Google Cloud Text-to-Speech."""
+    try:
+        logger.info(f"Received TTS request for text: '{request.text[:50]}...' (truncated)")
+
+
+
+        # Configure Gemini API
+        genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
+        logger.info("Step 1: Configured Gemini API with API key.")
+
+        # Use the gemini-2.5-flash-preview-tts model
+        model = genai.GenerativeModel('gemini-2.5-flash-preview-tts')
+        logger.info("Step 2: Loaded gemini-2.5-flash-preview-tts model.")
+
+        # Generate speech
+        response = model.generate_content(
+            request.text,
+            generation_config=genai.types.GenerateContentConfig(
+                response_modalities=['AUDIO'],
+                speech_config=genai.types.SpeechConfig(
+                    voice_config=genai.types.VoiceConfig(
+                        prebuilt_voice_config=genai.types.PrebuiltVoiceConfig(
+                            voice_name='en-US-Neural2-C'
+                        )
+                    )
+                )
+            )
+        )
+        logger.info("Step 3: Successfully generated speech using Gemini TTS.")
+
+        # Extract audio data and encode to base64
+        audio_data = response.candidates[0].content.parts[0].inline_data.data
+        encoded_audio = base64.b64encode(audio_data).decode("utf-8")
+        logger.info("Step 5: Encoded audio content to base64.")
+
+        return TextToSpeechResponse(audio_content=encoded_audio)
+    except Exception as e:
+        logger.error(f"Error generating TTS audio: {e}")
+        raise HTTPException(status_code=500, detail=f"Error generating TTS audio: {e}")
+
+
+@app.api_route("/ping", methods=["GET", "HEAD"])
+async def ping():
+    return JSONResponse(content={"message": "pong"})
+
+
+
+@app.post("/extract-parts")
+async def extract_parts_endpoint(
+    model: UploadFile = File(..., description="The GLB 3D model file.")
+):
+    """
+    Extracts part names from a GLB 3D model.
+    """
+    logger.info(f"Received request for GLB file: {model.filename}")
+    try:
+        # Save the uploaded GLB to a temporary file
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".glb") as tmp:
+            tmp.write(await model.read())
+            temp_glb_path = tmp.name
+
+        glb = GLTF2().load(temp_glb_path)
+        part_names = []
+        for mesh in glb.meshes:
+            if mesh.name:
+                part_names.append(mesh.name)
+        
+        if not part_names:
+            logger.warning("No mesh names found in the GLB file. Attempting to use node names.")
+            for node in glb.nodes:
+                if node.name:
+                    part_names.append(node.name)
+
+        if not part_names:
+            logger.warning("No part names extracted from GLB file.")
+        logger.info(f"Extracted part names: {part_names}")
+
+        return {"part_names": part_names}
+    except Exception as e:
+        logger.error(f"Error processing GLB file: {e}")
+        raise HTTPException(status_code=400, detail=f"Error processing GLB file: {e}")
+    finally:
+        if temp_glb_path and os.path.exists(temp_glb_path):
+            os.remove(temp_glb_path)
+
+@app.post("/generate-hotspots", response_model=SummarizationResponse)
+async def generate_hotspots_endpoint(
+    model_file: UploadFile = File(..., description="The 3D model file (GLB)."),
+    pdf_file: UploadFile = File(..., description="The product brochure PDF."),
+    part_names_json: str = Form(..., description="A JSON string array of part names from the 3D model."),
+):
+    """
+    The main endpoint that accepts a PDF and 3D model part names, returning
+    a structured list of marketing features mapped to those parts.
+    """
+    if not hotspot_generator:
+        raise HTTPException(status_code=503, detail="API is not configured properly. Missing API Key.")
+    
+    logger.info(f"Received request for PDF file: {pdf_file.filename}")
+    logger.info(f"Received model file: {model_file.filename}")
+    logger.info(f"Received part_names_json: {part_names_json}")
+
+    # 1. Read and validate inputs from the frontend request
+    try:
+        pdf_bytes = await pdf_file.read()
+        part_names = json.loads(part_names_json)
+        if not isinstance(part_names, list) or not all(isinstance(p, str) for p in part_names):
+            raise ValueError("part_names_json is not a valid JSON list of strings.")
+    except Exception as e:
+        logger.error(f"Invalid input provided: {e}")
+        raise HTTPException(status_code=400, detail=f"Invalid input: {e}")
+
+    logger.info("Input validation successful. Proceeding with PDF processing.")
+
+    # 2. Process the PDF to get clean text (delegated to our processor module)
+    logger.info("Step 1: Extracting text and tables from PDF.")
+    temp_pdf_path = None
+    try:
+        # Save the uploaded PDF to a temporary file
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+            tmp.write(pdf_bytes)
+            temp_pdf_path = tmp.name
+
+        brochure_text = extract_text_from_pdf(temp_pdf_path)
+        tables_with_position = extract_tables_from_pdf(temp_pdf_path)
+
+        # Combine text and tables. For simplicity, append tables to the end of the text.
+        # A more sophisticated approach might interleave them based on position.
+        combined_content = brochure_text
+        for table_info in tables_with_position:
+            combined_content += "\n" + table_info["content"]
+
+        if not combined_content:
+            logger.error("Failed to extract any content from the PDF.")
+            raise HTTPException(status_code=500, detail="Could not extract content from the uploaded PDF.")
+
+    finally:
+        if temp_pdf_path and os.path.exists(temp_pdf_path):
+            os.remove(temp_pdf_path)
+
+    brochure_text = clean_extracted_text(combined_content)
+    logger.info("PDF text extraction and cleaning complete.")
+
+    # Define output directory and create if it doesn't exist
+    output_dir = "C:\\project\\Brochure2Model\\satori_backend\\output"
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Generate a timestamp for unique filenames
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    # Save cleaned plaintext
+    plaintext_filename = os.path.join(output_dir, f"cleaned_plaintext_{timestamp}.txt")
+    with open(plaintext_filename, "w", encoding="utf-8") as f:
+        f.write(brochure_text)
+    logger.info(f"Cleaned plaintext saved to {plaintext_filename}")
+
+    # 3. Generate hotspots using the Gemini model (delegated to our generator module)
+    logger.info(f"Step 2: Generating hotspots for {len(part_names)} parts.")
+    hotspots_data = hotspot_generator.generate_hotspots_from_text(brochure_text, part_names)
+
+    # Save Gemini model output JSON
+    gemini_output_filename = os.path.join(output_dir, f"gemini_output_{timestamp}.json")
+    with open(gemini_output_filename, "w", encoding="utf-8") as f:
+        json.dump(hotspots_data, f, indent=4)
+    logger.info(f"Gemini output saved to {gemini_output_filename}")
+
+    # Ensure each hotspot has an ID and map marketing_summary to feature_description
+    for hotspot in hotspots_data:
+        if "id" not in hotspot:
+            hotspot["id"] = str(uuid.uuid4())
+        hotspot["feature_description"] = hotspot["marketing_summary"]
+
+    if not hotspots_data:
+        logger.warning("Gemini did not return any valid hotspots. Returning an empty list.")
+
+    logger.info("Successfully processed request.")
+    return SummarizationResponse(hotspots=hotspots_data, key_selling_points=[])
 
 @app.api_route("/ping", methods=["GET", "HEAD"])
 async def ping():

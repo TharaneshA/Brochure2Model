@@ -1,34 +1,39 @@
 {
   "hotspots": [
     {
-      "feature_title": "Aerodynamic Design",
-      "marketing_summary": "Experience the thrill of enhanced downforce and a more aggressive stance, thanks to the meticulously crafted aerodynamics.",
-      "matched_part_name": "Kit1_Grille1_Geo_lodA_Porsche_911GT3TouringRewardRecycled_2022Grille1A_Material_0"
+      "feature_title": "Sporty Design",
+      "marketing_summary": "The 2015 Coupe's sporty design and sleek exterior are designed to turn heads wherever you go.",
+      "matched_part_name": "h:Boot6_Mesh_011_M_Light_Max_h:M_Light_Max1_0"
     },
     {
-      "feature_title": "High-Performance Brakes",
-      "marketing_summary": "Feel the confidence of superior stopping power with the high-performance brake system, designed for ultimate control.",
-      "matched_part_name": "polySurface1139_Porsche_911GT3TouringRewardRecycled_2022_CallipersCalliperA_Zone_Material_0"
+      "feature_title": "7-inch Display Audio",
+      "marketing_summary": "Experience a new level of connectivity with the 7-inch Display Audio, offering intuitive touchscreen control.",
+      "matched_part_name": "h:Interior5_Mesh_009_M_Interior_Max_h:M_InteriorTiled_Common_Max1_0"
     },
     {
-      "feature_title": "4.0-Liter Engine",
-      "marketing_summary": "Unleash the roar of the 4.0-liter horizontally opposed, naturally aspirated engine, delivering 500 hp of pure performance.",
-      "matched_part_name": "Kit1_Base_Geo_lodA_Porsche_911GT3TouringRewardRecycled_2022Base_Material_0"
+      "feature_title": "Rearview Camera",
+      "marketing_summary": "Parking and backing up made easier with the standard rearview camera.",
+      "matched_part_name": "h:Boot6_Mesh_011_M_Light_Max_h:M_Light_Max1_0"
     },
     {
-      "feature_title": "Lightweight Construction",
-      "marketing_summary": "Benefit from the agility and responsiveness of lightweight construction, maximizing performance and handling.",
-      "matched_part_name": "Kit1_Carbon1_Geo_lodA_Porsche_911GT3TouringRewardRecycled_2022Carbon1_Material_0"
+      "feature_title": "17-inch Alloy Wheels (EX-L)",
+      "marketing_summary": "The EX-L trim features 17-inch alloy wheels, adding to the Civic's sporty and premium appeal.",
+      "matched_part_name": "WheelFL6_Mesh_035_M_RimBadge_Max1_h:M_Rim_Secondary_Max1_0"
     },
     {
-      "feature_title": "Sport Steering Wheel",
-      "marketing_summary": "Take control with the Sport steering wheel, featuring gearshift paddles for precise and direct gear changes.",
-      "matched_part_name": "bod_1:Kit1_Interior_Geo_lodABody_lodA_Porsche_911GT3TouringRewardRecycled_2022InteriorB_Material_0"
+      "feature_title": "Paddle Shifters (EX, EX-L Coupe with CVT)",
+      "marketing_summary": "Enhance your driving experience with sports car-inspired paddle shifters for more fun.",
+      "matched_part_name": "h:SteeringWheel5_Mesh_010_M_Interior_Max_h:M_InteriorTiled_Common_Max1_0"
     },
     {
-      "feature_title": "Porsche Doppelkupplung (PDK)",
-      "marketing_summary": "Experience lightning-fast gear changes with the PDK transmission, offering exhilarating acceleration and performance.",
-      "matched_part_name": "Kit1_Badge_Geo_lodA_Porsche_911GT3TouringRewardRecycled_2022BadgeB_Material_0"
+      "feature_title": "Smart Entry",
+      "marketing_summary": "Unlock and enter your Civic effortlessly, without ever taking your keys out of your pocket.",
+      "matched_part_name": "h:DoorL4_Mesh_002_M_Interior_Max_h:M_InteriorTiled_Common_Max1_0"
+    },
+    {
+      "feature_title": "Honda LaneWatch",
+      "marketing_summary": "See more of your surroundings with Honda LaneWatch, providing an expanded view of the passenger side.",
+      "matched_part_name": "h:MirrorL6_Mesh_028_M_LightGlass_Clear_Low_003_h:M_Glass_WindowFront_Low1_0"
     }
   ]
 }
