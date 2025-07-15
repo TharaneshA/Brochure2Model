@@ -14,7 +14,10 @@ export interface HotspotResponse {
 }
 
 // Base URL for API requests
-const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000"; // Direct call to FastAPI backend
+export const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+
+console.log('API_BASE_URL:', API_BASE_URL);
+console.log('process.env.NEXT_PUBLIC_BACKEND_URL:', process.env.NEXT_PUBLIC_BACKEND_URL);
 
 /**
  * Extracts part names from a GLB file
