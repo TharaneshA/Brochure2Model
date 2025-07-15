@@ -2,38 +2,43 @@
   "hotspots": [
     {
       "feature_title": "Sporty Design",
-      "marketing_summary": "The 2015 Coupe's sporty design and sleek exterior are designed to turn heads wherever you go.",
-      "matched_part_name": "h:Boot6_Mesh_011_M_Light_Max_h:M_Light_Max1_0"
+      "marketing_summary": "The 2015 Coupe's sporty design is sure to turn heads.",
+      "matched_part_name": "h:BumperF6_Mesh_014_M_Opaque_PlasticSmoothBlack_Max_001_h:M_Opaque_PlasticSmoothBlack_Max1_0"
     },
     {
       "feature_title": "7-inch Display Audio",
-      "marketing_summary": "Experience a new level of connectivity with the 7-inch Display Audio, offering intuitive touchscreen control.",
+      "marketing_summary": "Experience a 7-inch Display Audio with an electrostatic touch-screen that does almost everything your smartphone does.",
       "matched_part_name": "h:Interior5_Mesh_009_M_Interior_Max_h:M_InteriorTiled_Common_Max1_0"
     },
     {
       "feature_title": "Rearview Camera",
-      "marketing_summary": "Parking and backing up made easier with the standard rearview camera.",
+      "marketing_summary": "Backing up has never been easier, thanks to a rearview camera found on every Civic.",
       "matched_part_name": "h:Boot6_Mesh_011_M_Light_Max_h:M_Light_Max1_0"
     },
     {
       "feature_title": "17-inch Alloy Wheels (EX-L)",
-      "marketing_summary": "The EX-L trim features 17-inch alloy wheels, adding to the Civic's sporty and premium appeal.",
-      "matched_part_name": "WheelFL6_Mesh_035_M_RimBadge_Max1_h:M_Rim_Secondary_Max1_0"
+      "marketing_summary": "The EX-L trim turns heads with aggressive styling, including 17-inch alloy wheels.",
+      "matched_part_name": "WheelFL6_Mesh_035_M_RimBadge_Max_h:M_RimBadge_Max1_0"
     },
     {
-      "feature_title": "Paddle Shifters (EX, EX-L Coupe with CVT)",
-      "marketing_summary": "Enhance your driving experience with sports car-inspired paddle shifters for more fun.",
+      "feature_title": "Paddle Shifters",
+      "marketing_summary": "The Civic makes shifting gears so much more fun with sports car-inspired paddle shifters (EX, EX-L Coupe with CVT).",
       "matched_part_name": "h:SteeringWheel5_Mesh_010_M_Interior_Max_h:M_InteriorTiled_Common_Max1_0"
     },
     {
       "feature_title": "Smart Entry",
-      "marketing_summary": "Unlock and enter your Civic effortlessly, without ever taking your keys out of your pocket.",
-      "matched_part_name": "h:DoorL4_Mesh_002_M_Interior_Max_h:M_InteriorTiled_Common_Max1_0"
+      "marketing_summary": "Get in the Civic without ever taking your keys out of your pocket or purse.",
+      "matched_part_name": "h:DoorL4_Mesh_002_M_Interior_Max1_h:M_Opaque_PlasticSmoothBlack_Max1_0"
     },
     {
       "feature_title": "Honda LaneWatch",
-      "marketing_summary": "See more of your surroundings with Honda LaneWatch, providing an expanded view of the passenger side.",
-      "matched_part_name": "h:MirrorL6_Mesh_028_M_LightGlass_Clear_Low_003_h:M_Glass_WindowFront_Low1_0"
+      "marketing_summary": "See nearly four times more area than the mirror alone, thanks to a small camera under the passenger-side mirror.",
+      "matched_part_name": "h:MirrorR6_Mesh_029_M_LightGlass_Clear_Low_004_h:M_Glass_WindowFront_Low1_0"
+    },
+    {
+      "feature_title": "205-hp Engine (Si)",
+      "marketing_summary": "The Civic Si delivers power to you in the form of a 205-hp engine.",
+      "matched_part_name": "h:Chassis7_Mesh_M_Opaque_PlasticSmoothBlack_Max_h:M_Engine_Max1_0"
     }
   ]
 }

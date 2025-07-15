@@ -4,15 +4,16 @@ import logging
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from pygltflib import GLTF2
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field
 from typing import List
 import uuid
 import datetime
+from io import BytesIO
 
 import base64
-import google.generativeai as genai
 import os
+import boto3
 
 
 # Import our core logic modules
@@ -39,7 +40,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000", "https://brochure2model.vercel.app"],  # IMPORTANT: Restrict to your frontend's URL and Vercel deployment
     allow_credentials=True,
-    allow_methods=["POST", "GET"],
+    allow_methods=["POST", "GET", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -70,8 +71,7 @@ class SummarizationResponse(BaseModel):
 class TextToSpeechRequest(BaseModel):
     text: str
 
-class TextToSpeechResponse(BaseModel):
-    audio_content: str
+
 
 # --- Initialize our Generator ---
 # Best practice: Initialize heavyweight objects once on application startup.
@@ -89,7 +89,7 @@ def read_root():
     """A simple endpoint to confirm the API is running."""
     return {"status": "Brochure2Model API is online."}
 
-@app.post("/generate-tts-audio", response_model=TextToSpeechResponse)
+@app.post("/generate-tts-audio")
 async def generate_tts_audio(request: TextToSpeechRequest):
     """Generates speech audio from text using Google Cloud Text-to-Speech."""
     try:
@@ -97,36 +97,31 @@ async def generate_tts_audio(request: TextToSpeechRequest):
 
 
 
-        # Configure Gemini API
-        genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
-        logger.info("Step 1: Configured Gemini API with API key.")
-
-        # Use the gemini-2.5-flash-preview-tts model
-        model = genai.GenerativeModel('gemini-2.5-flash-preview-tts')
-        logger.info("Step 2: Loaded gemini-2.5-flash-preview-tts model.")
-
-        # Generate speech
-        response = model.generate_content(
-            request.text,
-            generation_config=genai.types.GenerateContentConfig(
-                response_modalities=['AUDIO'],
-                speech_config=genai.types.SpeechConfig(
-                    voice_config=genai.types.VoiceConfig(
-                        prebuilt_voice_config=genai.types.PrebuiltVoiceConfig(
-                            voice_name='en-US-Neural2-C'
-                        )
-                    )
-                )
-            )
+        # Configure Amazon Polly client
+        polly_client = boto3.client(
+            'polly',
+            region_name=os.environ.get("AWS_REGION"),
+            aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
+            aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY")
         )
-        logger.info("Step 3: Successfully generated speech using Gemini TTS.")
+        logger.info("Step 1: Configured Amazon Polly client.")
 
-        # Extract audio data and encode to base64
-        audio_data = response.candidates[0].content.parts[0].inline_data.data
-        encoded_audio = base64.b64encode(audio_data).decode("utf-8")
-        logger.info("Step 5: Encoded audio content to base64.")
+        # Generate speech using Amazon Polly
+        response = polly_client.synthesize_speech(
+            Text=request.text,
+            OutputFormat='mp3',
+            VoiceId='Joanna'  # You can choose a different voice ID
+        )
+        logger.info("Step 2: Successfully generated speech using Amazon Polly.")
 
-        return TextToSpeechResponse(audio_content=encoded_audio)
+        # Extract audio data
+        audio_data = response['AudioStream'].read()
+        logger.info(f"Step 3: Audio stream read. Length: {len(audio_data)} bytes.")
+        audio_buffer = BytesIO(audio_data)
+        headers = {
+            "Content-Length": str(len(audio_data))
+        }
+        return StreamingResponse(audio_buffer, media_type="audio/mpeg", headers=headers)
     except Exception as e:
         logger.error(f"Error generating TTS audio: {e}")
         raise HTTPException(status_code=500, detail=f"Error generating TTS audio: {e}")

@@ -3,8 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { X, ExternalLink, Volume2 } from "lucide-react"
-import { useState, useEffect } from 'react';
-import useSound from 'use-sound';
+import { useState, useEffect, useRef } from 'react';
 
 
 
@@ -26,30 +25,33 @@ interface PlayAudioButtonProps {
 }
 
 function PlayAudioButton({ text }: PlayAudioButtonProps) {
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [play, { stop, isPlaying }] = useSound(audioUrl || '', {
-    onend: () => setAudioUrl(null), // Clear URL after playing
-    format: ['mp3']
-  }) as unknown as [() => void, { stop: () => void; isPlaying: boolean }];
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
-    // Cleanup function to stop audio if component unmounts or text changes
+    // Cleanup function to stop audio if component unmounts
     return () => {
-      if (isPlaying) {
-        stop();
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+        URL.revokeObjectURL(audioRef.current.src);
       }
     };
-  }, [text, isPlaying, stop]);
+  }, []);
 
   const handlePlay = async () => {
     if (isPlaying) {
-      stop();
-      setAudioUrl(null);
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+      setIsPlaying(false);
       return;
     }
 
-    if (audioUrl) {
-      play();
+    if (audioRef.current && audioRef.current.src) {
+      audioRef.current.play();
+      setIsPlaying(true);
       return;
     }
 
@@ -67,26 +69,31 @@ function PlayAudioButton({ text }: PlayAudioButtonProps) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
-      const audioBlob = base64toBlob(data.audio_content, 'audio/mp3');
+      const audioBlob = await response.blob();
       const url = URL.createObjectURL(audioBlob);
-      setAudioUrl(url);
-      play();
+
+      if (audioRef.current) {
+        audioRef.current.src = url;
+        audioRef.current.play();
+        setIsPlaying(true);
+      } else {
+        audioRef.current = new Audio(url);
+        audioRef.current.play();
+        setIsPlaying(true);
+
+        audioRef.current.onended = () => {
+          setIsPlaying(false);
+          if (audioRef.current) {
+            URL.revokeObjectURL(audioRef.current.src);
+            audioRef.current.src = '';
+          }
+        };
+      }
+      console.log('Attempted to play audio using HTMLAudioElement.');
     } catch (error) {
       console.error('Error fetching TTS audio:', error);
       // Optionally, show a toast notification to the user
     }
-  };
-
-  // Helper function to convert base64 to Blob
-  const base64toBlob = (base64: string, type: string) => {
-    const byteCharacters = atob(base64);
-    const byteNumbers = new Array(byteCharacters.length);
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteNumbers[i] = byteCharacters.charCodeAt(i);
-    }
-    const byteArray = new Uint8Array(byteNumbers);
-    return new Blob([byteArray], { type: type });
   };
 
   return (
